@@ -1,0 +1,205 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCart } from '@/lib/cart';
+
+export default function Header() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const pathname = usePathname();
+    const { totalItems } = useCart();
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const navLinks = [
+        { name: 'Home', href: '/' },
+        { name: 'Collections', href: '/products' },
+        { name: 'About', href: '/about' },
+        { name: 'Contact', href: '/contact' },
+    ];
+
+    return (
+        <header
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 'var(--z-header)',
+                transition: 'all var(--transition-base)',
+                padding: isScrolled ? '0.5rem 0' : '1.5rem 0',
+            }}
+            className={isScrolled ? 'glass-nav' : ''}
+        >
+            <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {/* Logo */}
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', zIndex: 10, textDecoration: 'none' }}>
+                    <div style={{
+                        width: isScrolled ? '32px' : '40px',
+                        height: isScrolled ? '32px' : '40px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--color-secondary)',
+                        fontWeight: 700,
+                        fontSize: isScrolled ? '1.2rem' : '1.5rem',
+                        transition: 'all var(--transition-base)'
+                    }}>
+                        JB
+                    </div>
+                    <span style={{
+                        fontSize: isScrolled ? '1.25rem' : '1.5rem',
+                        fontWeight: 700,
+                        fontFamily: 'var(--font-playfair)',
+                        color: 'var(--color-text)',
+                        letterSpacing: '0.05em',
+                        transition: 'all var(--transition-base)'
+                    }}>
+                        Jyothi Boutique
+                    </span>
+                </Link>
+
+                {/* Desktop Navigation (Centered) */}
+                <nav className="desktop-nav" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <ul style={{ display: 'flex', gap: 'var(--spacing-xl)', listStyle: 'none', margin: 0, padding: 0 }}>
+                        {navLinks.map((link) => {
+                            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+                            return (
+                                <li key={link.name}>
+                                    <Link
+                                        href={link.href}
+                                        style={{
+                                            color: isActive ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                            fontWeight: isActive ? 600 : 400,
+                                            fontSize: '0.95rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            transition: 'color var(--transition-base)',
+                                            textDecoration: 'none',
+                                        }}
+                                        className="nav-link"
+                                    >
+                                        {link.name}
+                                        {isActive && (
+                                            <span style={{
+                                                position: 'absolute',
+                                                bottom: '-4px',
+                                                left: 0,
+                                                width: '100%',
+                                                height: '2px',
+                                                background: 'var(--color-primary)',
+                                                borderRadius: '2px'
+                                            }} />
+                                        )}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
+
+                {/* Actions (Right Aligned) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', zIndex: 10 }}>
+                    <Link href="/cart" style={{ position: 'relative', color: 'var(--color-text)', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                        {totalItems > 0 && (
+                            <span style={{
+                                position: 'absolute',
+                                top: '-8px',
+                                right: '-8px',
+                                background: 'var(--color-primary)',
+                                color: 'var(--color-secondary)',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                width: '20px',
+                                height: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 'var(--radius-full)',
+                            }}>
+                                {totalItems}
+                            </span>
+                        )}
+                    </Link>
+
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        className="mobile-menu-btn"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--color-text)',
+                            cursor: 'pointer',
+                            display: 'none', // Hidden on desktop, shown via CSS media query
+                        }}
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {isMenuOpen ? (
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            ) : (
+                                <path d="M3 12h18M3 6h18M3 18h18" />
+                            )}
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile Navigation */}
+            {isMenuOpen && (
+                <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: 'rgba(31, 4, 21, 0.95)',
+                    backdropFilter: 'blur(16px)',
+                    borderBottom: '1px solid var(--color-border)',
+                    padding: 'var(--spacing-md) 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-md)'
+                }}>
+                    {navLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            href={link.href}
+                            onClick={() => setIsMenuOpen(false)}
+                            style={{
+                                color: pathname === link.href ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontSize: '1.25rem',
+                                fontWeight: pathname === link.href ? 600 : 400,
+                                textTransform: 'uppercase',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                </div>
+            )}
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    .desktop-nav { display: none !important; }
+                    .mobile-menu-btn { display: block !important; }
+                }
+            `}</style>
+        </header>
+    );
+}
