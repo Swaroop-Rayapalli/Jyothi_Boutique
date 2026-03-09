@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { products } from '@/lib/data';
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
@@ -7,26 +7,16 @@ export async function GET(req: Request) {
     const featuredParam = searchParams.get('featured');
 
     try {
-        const where: any = {};
+        let filteredProducts = products;
+
         if (categoryParam) {
-            where.category = { slug: categoryParam };
+            filteredProducts = filteredProducts.filter(p => p.category?.slug === categoryParam);
         }
         if (featuredParam === 'true') {
-            where.isFeatured = true;
+            filteredProducts = filteredProducts.filter(p => p.isFeatured);
         }
 
-        const productsList = await prisma.product.findMany({
-            where,
-            include: { category: true }
-        });
-
-        const products = productsList.map((product) => ({
-            ...product,
-            images: JSON.parse(product.images as string),
-            specifications: product.specifications ? JSON.parse(product.specifications as string) : {}
-        }));
-
-        return NextResponse.json(products);
+        return NextResponse.json(filteredProducts);
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { products } from '@/lib/data';
 
 export async function GET(
     req: Request,
@@ -7,20 +7,13 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const product = await prisma.product.findUnique({
-            where: { id },
-            include: { category: true },
-        });
+        const product = products.find(p => p.id === id);
 
         if (!product) {
             return NextResponse.json({ error: 'Product not found' }, { status: 404 });
         }
 
-        return NextResponse.json({
-            ...product,
-            images: JSON.parse(product.images as string),
-            specifications: product.specifications ? JSON.parse(product.specifications as string) : {},
-        });
+        return NextResponse.json(product);
     } catch (error) {
         console.error('API Product GET error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 interface OrderItemRequest {
     productId: string;
@@ -22,24 +21,13 @@ export async function POST(req: Request) {
     try {
         const body: OrderRequestBody = await req.json();
 
-        const order = await prisma.order.create({
-            data: {
-                customerName: body.customer.name,
-                customerEmail: body.customer.email,
-                customerPhone: body.customer.phone,
-                totalAmount: body.totalAmount,
-                deliveryAddress: body.deliveryAddress,
-                items: {
-                    create: body.items.map(item => ({
-                        product: { connect: { id: item.productId } },
-                        quantity: item.quantity,
-                        price: item.price
-                    }))
-                }
-            }
-        });
+        // Simulate successful order creation and return a mock ID
+        const mockOrder = {
+            id: 'ord_' + Math.random().toString(36).substr(2, 9),
+            ...body
+        };
 
-        return NextResponse.json(order);
+        return NextResponse.json(mockOrder);
     } catch (error) {
         console.error('API Orders POST error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

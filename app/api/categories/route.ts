@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { categories } from '@/lib/data';
 
 export async function GET() {
     try {
-        const categories = await prisma.category.findMany({
-            include: {
-                _count: {
-                    select: { products: true },
-                },
-            },
-        });
         return NextResponse.json(categories);
     } catch (error) {
         console.error('API Categories GET error:', error);
@@ -22,7 +15,10 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { name, description, slug } = body;
         if (!name || !slug) return NextResponse.json({ error: 'Name and slug required' }, { status: 400 });
-        const category = await prisma.category.create({ data: { name, description, slug } });
+
+        // Mocking database creation
+        const category = { id: 'cat_' + Math.random().toString(36).substr(2, 9), name, description, slug };
+
         return NextResponse.json(category);
     } catch (error) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
