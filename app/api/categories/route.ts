@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { categories } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         return NextResponse.json(categories);
