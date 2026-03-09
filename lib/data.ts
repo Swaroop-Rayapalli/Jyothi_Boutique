@@ -28,6 +28,24 @@ export const categories = [
         name: 'Thanjavur Paintings',
         slug: 'thanjavur',
         description: 'Authentic South Indian classical paintings with rich colors and gold foil.'
+    },
+    {
+        id: 'handloom',
+        name: 'Handloom Silks',
+        slug: 'handloom',
+        description: 'Pure Kanchipuram and Banarasi silk sarees celebrating traditional weaves.'
+    },
+    {
+        id: 'bridal',
+        name: 'Complete Bridal Sets',
+        slug: 'bridal',
+        description: 'Complete matching bridal ensembles tailored to absolute perfection.'
+    },
+    {
+        id: 'embroidery',
+        name: 'Custom Embroidery',
+        slug: 'embroidery',
+        description: 'Personalized thread embroidery for contemporary and everyday elegant wear.'
     }
 ];
 
@@ -77,9 +95,39 @@ export const products = [
         name: "Traditional Saraswati Thanjavur Painting",
         description: "Authentic Tanjore painting of Goddess Saraswati with 22k gold foil art.",
         price: 35000,
-        images: ["/products/saree-2.png"], // Reusing an image to prevent 400 error
+        images: ["/products/saree-2.png"],
         categoryId: 'thanjavur',
         category: categories.find(c => c.id === 'thanjavur'),
+        isFeatured: true
+    },
+    {
+        id: '6',
+        name: "Pure Kanchipuram Wedding Saree",
+        description: "Authentic hand-woven Kanchipuram silk saree with pure zari border.",
+        price: 38000,
+        images: ["/products/saree-1.png"],
+        categoryId: 'handloom',
+        category: categories.find(c => c.id === 'handloom'),
+        isFeatured: true
+    },
+    {
+        id: '7',
+        name: "Royal Velvet Bridal Lehenga Ensemble",
+        description: "A complete bridal set featuring a heavy velvet lehenga, matching blouse, and double net dupattas.",
+        price: 85000,
+        images: ["/products/lehenga-1.png"],
+        categoryId: 'bridal',
+        category: categories.find(c => c.id === 'bridal'),
+        isFeatured: true
+    },
+    {
+        id: '8',
+        name: "Pastel Threadwork Reception Blouse",
+        description: "Contemporary pastel thread embroidery on a modern sweetheart neckline blouse.",
+        price: 11000,
+        images: ["/products/blouse-2.png"],
+        categoryId: 'embroidery',
+        category: categories.find(c => c.id === 'embroidery'),
         isFeatured: true
     }
 ];
