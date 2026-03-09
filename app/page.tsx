@@ -119,12 +119,12 @@ export default function Home() {
             {[
               { name: 'Zardosi Work', image: '/products/blouse-1.png', link: '/products?category=zardosi' },
               { name: 'Aari Work', image: '/products/blouse-2.png', link: '/products?category=aari' },
-              { name: 'Kundan Work', image: '/products/saree-1.png', link: '/products?category=kundan' },
+              { name: 'Kundan Work', image: '/products/emerald-saree.jpeg', link: '/products?category=kundan' },
               { name: 'Cutwork', image: '/products/lehenga-1.png', link: '/products?category=cutwork' },
               { name: 'Thanjavur Paintings', image: '/products/saree-2.png', link: '/products?category=thanjavur' },
               { name: 'Handloom Silks', image: '/products/saree-1.png', link: '/products?category=handloom' },
-              { name: 'Complete Bridal Sets', image: '/products/lehenga-1.png', link: '/products?category=bridal' },
-              { name: 'Custom Embroidery', image: '/products/blouse-2.png', link: '/products?category=embroidery' }
+              { name: 'Complete Bridal Sets', image: '/products/bridal-lehenga.jpg', link: '/products?category=bridal' },
+              { name: 'Custom Embroidery', image: '/products/pastel-blouse.jpg', link: '/products?category=embroidery' }
             ].map((category, index) => (
               <Link key={index} href={category.link} className="glass-card" style={{
                 position: 'relative',

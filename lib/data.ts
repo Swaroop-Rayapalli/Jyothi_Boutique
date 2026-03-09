@@ -75,7 +75,7 @@ export const products = [
         name: "Kundan Embedded Emerald Saree",
         description: "Luxurious emerald green silk saree with kundan maggam borders.",
         price: 25000,
-        images: ["/products/saree-1.png"],
+        images: ["/products/emerald-saree.jpeg"],
         categoryId: 'kundan',
         category: categories.find(c => c.id === 'kundan'),
         isFeatured: true
@@ -115,7 +115,7 @@ export const products = [
         name: "Royal Velvet Bridal Lehenga Ensemble",
         description: "A complete bridal set featuring a heavy velvet lehenga, matching blouse, and double net dupattas.",
         price: 85000,
-        images: ["/products/lehenga-1.png"],
+        images: ["/products/bridal-lehenga.jpg"],
         categoryId: 'bridal',
         category: categories.find(c => c.id === 'bridal'),
         isFeatured: true
@@ -125,7 +125,7 @@ export const products = [
         name: "Pastel Threadwork Reception Blouse",
         description: "Contemporary pastel thread embroidery on a modern sweetheart neckline blouse.",
         price: 11000,
-        images: ["/products/blouse-2.png"],
+        images: ["/products/pastel-blouse.jpg"],
         categoryId: 'embroidery',
         category: categories.find(c => c.id === 'embroidery'),
         isFeatured: true
