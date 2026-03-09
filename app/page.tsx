@@ -117,9 +117,11 @@ export default function Home() {
             gap: 'var(--spacing-xl)'
           }}>
             {[
-              { name: 'Designer Blouses', image: '/products/blouse-1.png', link: '/products?category=blouses' },
-              { name: 'Bridal Sarees', image: '/products/saree-1.png', link: '/products?category=sarees' },
-              { name: 'Luxury Lehengas', image: '/products/lehenga-1.png', link: '/products?category=lehengas' }
+              { name: 'Zardosi Work', image: '/products/blouse-1.png', link: '/products?category=zardosi' },
+              { name: 'Aari Work', image: '/products/blouse-2.png', link: '/products?category=aari' },
+              { name: 'Kundan Work', image: '/products/saree-1.png', link: '/products?category=kundan' },
+              { name: 'Cutwork', image: '/products/lehenga-1.png', link: '/products?category=cutwork' },
+              { name: 'Thanjavur Paintings', image: '/products/saree-2.png', link: '/products?category=thanjavur' }
             ].map((category, index) => (
               <Link key={index} href={category.link} className="glass-card" style={{
                 position: 'relative',
