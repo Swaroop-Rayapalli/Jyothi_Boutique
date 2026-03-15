@@ -32,14 +32,24 @@ export default function Header() {
                 position: 'fixed',
                 top: 0,
                 left: 0,
-                right: 0,
+                width: '100%',
                 zIndex: 'var(--z-header)',
                 transition: 'all var(--transition-base)',
                 padding: isScrolled ? '0.5rem 0' : '1.5rem 0',
+                boxSizing: 'border-box'
             }}
             className={isScrolled ? 'glass-nav' : ''}
         >
-            <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="container" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                width: '100%',
+                maxWidth: '1280px',
+                margin: '0 auto',
+                padding: '0 var(--spacing-sm)',
+                boxSizing: 'border-box'
+            }}>
                 {/* Logo */}
                 <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', zIndex: 10, textDecoration: 'none' }}>
                     <div style={{
@@ -57,8 +67,8 @@ export default function Header() {
                     }}>
                         JB
                     </div>
-                    <span style={{
-                        fontSize: isScrolled ? '1.25rem' : '1.5rem',
+                    <span className="logo-text" style={{
+                        fontSize: isScrolled ? '1.1rem' : '1.35rem',
                         fontWeight: 700,
                         fontFamily: 'var(--font-playfair)',
                         color: 'var(--color-text)',
@@ -198,6 +208,9 @@ export default function Header() {
                 @media (max-width: 768px) {
                     .desktop-nav { display: none !important; }
                     .mobile-menu-btn { display: block !important; }
+                }
+                @media (max-width: 380px) {
+                    .logo-text { display: none; }
                 }
             `}</style>
         </header>

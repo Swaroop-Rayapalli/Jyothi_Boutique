@@ -41,27 +41,36 @@ export default function Home() {
       {/* Hero Section */}
       <section style={{
         position: 'relative',
-        minHeight: '80vh',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        paddingTop: '6rem',
+        paddingTop: '8rem',
         overflow: 'hidden',
         background: 'linear-gradient(to right, var(--color-background) 0%, rgba(31, 4, 21, 0.8) 100%)'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: '60%',
-          background: 'url(/images/hero-model.png) center/cover no-repeat',
-          zIndex: -1,
-          opacity: 0.8,
-          maskImage: 'linear-gradient(to left, black, transparent)'
-        }}></div>
+        <div 
+          className="hero-image"
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            opacity: 0.4,
+            zIndex: 0,
+            maskImage: 'linear-gradient(to left, black, transparent)',
+            WebkitMaskImage: 'linear-gradient(to left, black, transparent)'
+          }}
+        >
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: 'url(/images/hero-model.png) center right/contain no-repeat',
+          }}></div>
+        </div>
 
         <div className="container relative z-10">
-          <div style={{ maxWidth: '600px' }}>
+          <div className="hero-content">
             <span style={{
               display: 'inline-block',
               padding: '0.25rem 1rem',
@@ -77,21 +86,22 @@ export default function Home() {
               Premium Collection 2026
             </span>
 
-            <h1 style={{ fontSize: '4.5rem', marginBottom: 'var(--spacing-lg)', lineHeight: 1.1 }}>
+            <h1 style={{ marginBottom: 'var(--spacing-lg)', lineHeight: 1.1 }}>
               Timeless Artistry <br />
               <span className="text-gradient">Woven in Thread</span>
             </h1>
 
             <p style={{
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 4vw, 1.25rem)',
               color: 'var(--color-text-light)',
               marginBottom: 'var(--spacing-2xl)',
-              lineHeight: 1.8
+              lineHeight: 1.8,
+              maxWidth: '500px'
             }}>
               Discover exclusive, handcrafted maggam work blouses, sarees, and lehengas tailored to perfection. Experience the pinnacle of traditional Indian couture.
             </p>
 
-            <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+            <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
               <Link href="/products">
                 <Button size="lg" variant="primary">Explore Collection</Button>
               </Link>
@@ -101,6 +111,27 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <style jsx>{`
+          .hero-content {
+            max-width: 600px;
+          }
+          @media (min-width: 1024px) {
+            .hero-image {
+              width: 60% !important;
+              opacity: 0.8 !important;
+            }
+          }
+          @media (max-width: 640px) {
+            .hero-content {
+              text-align: center;
+              margin: 0 auto;
+            }
+            .hero-content div {
+              justify-content: center;
+            }
+          }
+        `}</style>
       </section>
 
       {/* Featured Categories */}
