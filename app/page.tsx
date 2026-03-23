@@ -15,9 +15,20 @@ interface Product {
   };
 }
 
+interface Feedback {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  images: string[];
+  date: string;
+}
+
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(true);
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -33,7 +44,23 @@ export default function Home() {
         setIsLoading(false);
       }
     };
+
+    const fetchFeedback = async () => {
+      try {
+        const res = await fetch('/api/feedback');
+        if (res.ok) {
+          const data = await res.json();
+          setFeedbacks(data.slice(0, 3));
+        }
+      } catch (err) {
+        console.error('Failed to fetch feedback', err);
+      } finally {
+        setIsLoadingFeedback(false);
+      }
+    };
+
     fetchFeatured();
+    fetchFeedback();
   }, []);
 
   return (
@@ -237,6 +264,70 @@ export default function Home() {
             ) : (
               <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: 'var(--spacing-xl)', color: 'var(--color-text-light)' }}>
                 Discover our latest handcrafted collections.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Client Feedback Section */}
+      <section className="section" style={{ background: 'var(--color-surface)' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--spacing-2xl)' }}>
+            <div>
+              <h2 style={{ fontSize: '3rem', marginBottom: 'var(--spacing-xs)' }}>Client Stories</h2>
+              <p style={{ color: 'var(--color-primary)', fontSize: '1.125rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Experiences Shared with Us</p>
+            </div>
+            <Link href="/feedback" style={{ color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+              Read All <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </Link>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: 'var(--spacing-xl)'
+          }}>
+            {isLoadingFeedback ? (
+              [...Array(2)].map((_, i) => (
+                <div key={i} className="glass-card" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="spinner"></div>
+                </div>
+              ))
+            ) : feedbacks.length > 0 ? (
+              feedbacks.map((item) => (
+                <div key={item.id} className="glass-card" style={{ padding: 'var(--spacing-lg)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
+                    <h3 style={{ fontSize: '1.25rem', color: 'white' }}>{item.name}</h3>
+                    <div style={{ display: 'flex', gap: '2px', color: 'var(--color-primary)' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} style={{ opacity: i < item.rating ? 1 : 0.1 }}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                  <p style={{ color: 'var(--color-text-light)', fontStyle: 'italic', lineHeight: 1.6 }}>
+                    "{item.comment.length > 150 ? item.comment.substring(0, 150) + '...' : item.comment}"
+                  </p>
+                  {item.images && item.images.length > 0 && (
+                    <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', gap: '8px' }}>
+                      {item.images.slice(0, 2).map((img, idx) => (
+                        <div key={idx} style={{ 
+                          width: '60px', 
+                          height: '60px', 
+                          borderRadius: 'var(--radius-sm)', 
+                          overflow: 'hidden',
+                          border: '1px solid var(--color-border)'
+                        }}>
+                          <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: 'var(--spacing-xl)', color: 'var(--color-text-light)' }}>
+                Read what our clients have to say about our work.
               </div>
             )}
           </div>
