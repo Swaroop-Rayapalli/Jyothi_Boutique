@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 
 export const metadata: Metadata = {
-  title: 'Jyothi Boutique - Premium Maggam Work',
-  description: 'Discover exquisite, handcrafted maggam work blouses, sarees, and lehengas.',
+  title: 'Jyothi Boutique - Premium Thanjavur Paintings & Custom Embroidery',
+  description: 'Discover exquisite, handcrafted Thanjavur Paintings and intricate custom embroidery pieces.',
 };
 
 export default function RootLayout({

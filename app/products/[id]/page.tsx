@@ -19,6 +19,7 @@ interface ProductDetail {
     };
     specifications?: Record<string, string>;
     isFeatured: boolean;
+    isComingSoon?: boolean;
 }
 
 interface RelatedProduct {
@@ -31,6 +32,7 @@ interface RelatedProduct {
         slug: string;
     };
     isFeatured: boolean;
+    isComingSoon?: boolean;
 }
 
 export default function ProductDetailPage() {
@@ -118,7 +120,7 @@ export default function ProductDetailPage() {
                 <div>
                     <h1 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-sm)' }}>{product.name}</h1>
                     <p style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: 'var(--spacing-lg)' }}>
-                        ₹{product.price.toLocaleString('en-IN')}
+                        {product.isComingSoon || product.price === 0 ? 'Coming Soon' : `₹${product.price.toLocaleString('en-IN')}`}
                     </p>
                     <p style={{ color: 'var(--color-text-light)', lineHeight: 1.8, marginBottom: 'var(--spacing-xl)' }}>
                         {product.description}
@@ -138,7 +140,14 @@ export default function ProductDetailPage() {
                         </div>
                     )}
 
-                    <Button size="lg" style={{ width: '100%' }} onClick={handleAddToCart}>Add to Cart</Button>
+                    <Button 
+                        size="lg" 
+                        style={{ width: '100%' }} 
+                        onClick={handleAddToCart}
+                        disabled={product.isComingSoon}
+                    >
+                        {product.isComingSoon ? 'Coming Soon' : 'Add to Cart'}
+                    </Button>
                 </div>
             </div>
 
@@ -148,7 +157,14 @@ export default function ProductDetailPage() {
                     <h2 style={{ fontSize: '2rem', marginBottom: 'var(--spacing-xl)', textAlign: 'center' }}>You May Also Like</h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 'var(--spacing-lg)' }}>
                         {relatedProducts.map(p => (
-                            <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} image={p.images[0] || '/placeholder.jpg'} />
+                            <ProductCard 
+                                key={p.id} 
+                                id={p.id} 
+                                name={p.name} 
+                                price={p.price} 
+                                image={p.images[0] || '/placeholder.jpg'} 
+                                isComingSoon={p.isComingSoon}
+                            />
                         ))}
                     </div>
                 </div>

@@ -13,6 +13,7 @@ interface Product {
         name: string;
     };
     isFeatured: boolean;
+    isComingSoon?: boolean;
 }
 
 import { Suspense } from 'react';
@@ -69,6 +70,7 @@ function ProductsContent() {
                             price={product.price}
                             image={product.images[0] || '/placeholder.jpg'}
                             category={product.category?.name}
+                            isComingSoon={product.isComingSoon}
                         />
                     ))}
                 </div>

@@ -13,6 +13,7 @@ interface Product {
   category?: {
     name: string;
   };
+  isComingSoon?: boolean;
 }
 
 interface Feedback {
@@ -125,7 +126,7 @@ export default function Home() {
               lineHeight: 1.8,
               maxWidth: '500px'
             }}>
-              Discover exclusive, handcrafted maggam work blouses, sarees, and lehengas tailored to perfection. Experience the pinnacle of traditional Indian couture.
+              Discover authentic Thanjavur Paintings and exquisite custom embroidery tailored to perfection. Experience the pinnacle of traditional Indian artistry.
             </p>
 
             <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
@@ -172,17 +173,13 @@ export default function Home() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 'var(--spacing-xl)'
+            gap: 'var(--spacing-xl)',
+            justifyContent: 'center'
           }}>
             {[
-              { name: 'Zardosi Work', image: '/products/blouse-1.png', link: '/products?category=zardosi' },
-              { name: 'Aari Work', image: '/products/blouse-2.png', link: '/products?category=aari' },
-              { name: 'Kundan Work', image: '/products/emerald-saree.jpeg', link: '/products?category=kundan' },
-              { name: 'Cutwork', image: '/products/lehenga-1.png', link: '/products?category=cutwork' },
               { name: 'Thanjavur Paintings', image: '/products/saree-2.png', link: '/products?category=thanjavur' },
-              { name: 'Handloom Silks', image: '/products/saree-1.png', link: '/products?category=handloom' },
-              { name: 'Complete Bridal Sets', image: '/products/bridal-lehenga.jpg', link: '/products?category=bridal' },
-              { name: 'Custom Embroidery', image: '/products/pastel-blouse.jpg', link: '/products?category=embroidery' }
+              { name: 'Custom Embroidery', image: '/products/pastel-blouse.jpg', link: '/products?category=embroidery' },
+              { name: 'Thanjavur Frame Paints', image: '/placeholder.jpg', link: '/products?category=thanjavur', isComingSoon: true }
             ].map((category, index) => (
               <Link key={index} href={category.link} className="glass-card" style={{
                 position: 'relative',
@@ -209,14 +206,26 @@ export default function Home() {
                   background: 'linear-gradient(to top, rgba(31,4,21,0.9), transparent)',
                   zIndex: 1
                 }}></div>
-                <h3 style={{
-                  position: 'relative',
-                  zIndex: 2,
-                  fontSize: '2rem',
-                  color: 'white',
-                  textAlign: 'center',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)'
-                }}>{category.name}</h3>
+                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                  <h3 style={{
+                    fontSize: '2rem',
+                    color: 'white',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                    marginBottom: '8px'
+                  }}>{category.name}</h3>
+                  {category.isComingSoon && (
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      background: 'var(--color-primary)',
+                      color: 'var(--color-background)',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase'
+                    }}>Coming Soon</span>
+                  )}
+                </div>
                 <style jsx>{`
                                     .glass-card:hover .category-bg { transform: scale(1.1); }
                                 `}</style>
@@ -259,6 +268,7 @@ export default function Home() {
                   price={product.price}
                   image={product.images[0] || '/placeholder.jpg'}
                   category={product.category?.name}
+                  isComingSoon={product.isComingSoon}
                 />
               ))
             ) : (

@@ -14,7 +14,7 @@ export default function CartPage() {
                 <div style={{ fontSize: '5rem', marginBottom: 'var(--spacing-md)' }}>🛍️</div>
                 <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Your Cart is Empty</h2>
                 <p style={{ color: 'var(--color-text-light)', marginBottom: 'var(--spacing-xl)' }}>
-                    Looks like you haven&apos;t added any maggam work masterpieces yet.
+                    Looks like you haven&apos;t added any artistic masterpieces yet.
                 </p>
                 <Link href="/products">
                     <Button variant="primary" size="lg">Start Shopping</Button>

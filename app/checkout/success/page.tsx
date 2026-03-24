@@ -19,7 +19,7 @@ function SuccessContent() {
 
             <h1 className="text-gradient">Order Placed Successfully!</h1>
             <p style={{ color: 'var(--color-text-light)', fontSize: '1.25rem', marginBottom: 'var(--spacing-lg)' }}>
-                Thank you for choosing Jyothi Boutique. We&apos;re excited to start working on your maggam work pieces.
+                Thank you for choosing Jyothi Boutique. We&apos;re excited to start working on your artistic masterpieces.
             </p>
 
             <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto var(--spacing-2xl)', padding: 'var(--spacing-xl)' }}>

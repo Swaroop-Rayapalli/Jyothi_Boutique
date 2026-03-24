@@ -10,11 +10,12 @@ interface ProductCardProps {
     price: number;
     image: string;
     category?: string;
+    isComingSoon?: boolean;
 }
 
-export default function ProductCard({ id, name, price, image, category }: ProductCardProps) {
+export default function ProductCard({ id, name, price, image, category, isComingSoon }: ProductCardProps) {
     return (
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', opacity: isComingSoon ? 0.8 : 1 }}>
             <Link href={`/products/${id}`} style={{ position: 'relative', width: '100%', height: '300px', display: 'block', overflow: 'hidden' }}>
                 <Image
                     src={image}
@@ -23,6 +24,23 @@ export default function ProductCard({ id, name, price, image, category }: Produc
                     style={{ objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
                     className="product-image"
                 />
+                {isComingSoon && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '1rem',
+                        right: '1rem',
+                        background: 'var(--color-primary)',
+                        color: 'var(--color-background)',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        zIndex: 2,
+                        textTransform: 'uppercase'
+                    }}>
+                        Coming Soon
+                    </div>
+                )}
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -49,10 +67,10 @@ export default function ProductCard({ id, name, price, image, category }: Produc
 
                 <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="text-gradient" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                        ₹{price.toLocaleString('en-IN')}
+                        {isComingSoon || price === 0 ? 'Coming Soon' : `₹${price.toLocaleString('en-IN')}`}
                     </span>
                     <Link href={`/products/${id}`}>
-                        <Button variant="outline" size="sm">View</Button>
+                        <Button variant="outline" size="sm">{isComingSoon ? 'Details' : 'View'}</Button>
                     </Link>
                 </div>
             </div>

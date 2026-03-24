@@ -39,7 +39,7 @@ export default function Footer() {
                             </span>
                         </Link>
                         <p style={{ color: 'var(--color-text-light)', marginBottom: 'var(--spacing-lg)', lineHeight: 1.8 }}>
-                            Exquisite handcrafted maggam work blouses, sarees, and lehengas, blending traditional artistry with modern elegance.
+                            Exquisite handcrafted Thanjavur Paintings and custom embroidery, blending traditional artistry with modern elegance.
                         </p>
                     </div>
 

@@ -20,10 +20,10 @@ export default function AboutPage() {
                     <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
                         <h2 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-xl)' }} className="text-gradient">The Jyothi Boutique Story</h2>
                         <p style={{ fontSize: '1.25rem', color: 'var(--color-text-light)', lineHeight: 1.8, marginBottom: 'var(--spacing-lg)' }}>
-                            Jyothi Boutique is more than just a fashion destination; it&apos;s a celebration of traditional Indian craftsmanship and the timeless art of Maggam work. Founded with a passion for intricate detailing and a deep respect for heritage textiles, we have curated a collection that embodies elegance and sophistication.
+                            Jyothi Boutique is more than just a fashion destination; it&apos;s a celebration of traditional Indian craftsmanship and the timeless art of Thanjavur Paintings and custom embroidery. Founded with a passion for intricate detailing and a deep respect for heritage textiles, we have curated a collection that embodies elegance and sophistication.
                         </p>
                         <p style={{ fontSize: '1.25rem', color: 'var(--color-text-light)', lineHeight: 1.8 }}>
-                            Every piece in our collection tells a story of skilled artisans, meticulous design, and an unwavering commitment to quality. From the rich hues of our bridal sarees to the exquisite embroidery on our lehengas and blouses, we bring you the finest in hand-crafted luxury.
+                            Every piece in our collection tells a story of skilled artisans, meticulous design, and an unwavering commitment to quality. From the rich hues of our Thanjavur Paintings to the exquisite detailing of our custom embroidery and hand-painted luxury, we bring you the finest in hand-crafted artistry.
                         </p>
                     </div>
                 </div>
