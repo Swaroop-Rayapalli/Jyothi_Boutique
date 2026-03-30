@@ -83,7 +83,7 @@ export default function FeedbackPage() {
                 <div className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
                     <h2 style={{ fontSize: '1.75rem', marginBottom: 'var(--spacing-lg)', textAlign: 'center' }}>Share Your Experience</h2>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
+                        <div className="form-grid">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                                 <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Name</label>
                                 <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} />
@@ -163,16 +163,18 @@ export default function FeedbackPage() {
                     ) : feedbackList.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
                             {feedbackList.map((item) => (
-                                <div key={item.id} className="glass-card" style={{ padding: 'var(--spacing-lg)', animation: 'fadeIn 0.5s ease forwards' }}>
+                                <div key={item.id} className="glass-card feedback-card" style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-sm)' }}>
-                                        <div>
-                                            <h3 style={{ fontSize: '1.25rem', color: 'white', marginBottom: '4px' }}>{item.name}</h3>
-                                            <div style={{ display: 'flex', gap: '2px' }}>
-                                                {[...Array(5)].map((_, i) => (
-                                                    <span key={i} style={{ color: i < item.rating ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)', fontSize: '0.875rem' }}>
-                                                        ★
-                                                    </span>
-                                                ))}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                                                <h3 style={{ fontSize: '1.25rem', color: 'white', marginBottom: 0 }}>{item.name}</h3>
+                                                <div style={{ display: 'flex', gap: '2px' }}>
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <span key={i} style={{ color: i < item.rating ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)', fontSize: '0.875rem' }}>
+                                                            ★
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                         <span style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', opacity: 0.5 }}>
@@ -222,6 +224,22 @@ export default function FeedbackPage() {
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
+                }
+                .feedback-card {
+                    padding: var(--spacing-lg);
+                }
+                .form-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: var(--spacing-md);
+                }
+                @media (max-width: 640px) {
+                    .feedback-card {
+                        padding: var(--spacing-md);
+                    }
+                    .form-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
         </div>

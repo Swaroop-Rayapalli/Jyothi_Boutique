@@ -33,13 +33,13 @@ export default function CartPage() {
                     {items.map((item) => (
                         <div key={item.id} className="glass-card" style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: 'var(--spacing-lg)', alignItems: 'center', padding: 'var(--spacing-sm)' }}>
                             <div style={{ position: 'relative', width: '120px', height: '120px', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-                                <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} />
+                                <Image src={item.image} alt={item.name} fill sizes="120px" style={{ objectFit: 'cover' }} />
                             </div>
 
                             <div>
                                 <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-xs)' }}>{item.name}</h3>
                                 <p style={{ color: 'var(--color-primary)', fontWeight: 600, marginBottom: 'var(--spacing-md)' }}>
-                                    ₹{item.price.toLocaleString('en-IN')}
+                                    {item.price.toLocaleString('en-IN')}
                                 </p>
 
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
@@ -75,7 +75,7 @@ export default function CartPage() {
 
                             <div style={{ textAlign: 'right', paddingRight: 'var(--spacing-md)' }}>
                                 <p style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                                    {(item.price * item.quantity).toLocaleString('en-IN')}
                                 </p>
                             </div>
                         </div>
@@ -89,7 +89,7 @@ export default function CartPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-xl)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ color: 'var(--color-text-light)' }}>Items ({totalItems})</span>
-                                <span>₹{totalPrice.toLocaleString('en-IN')}</span>
+                                <span>{totalPrice.toLocaleString('en-IN')}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ color: 'var(--color-text-light)' }}>Shipping</span>
@@ -97,7 +97,7 @@ export default function CartPage() {
                             </div>
                             <div style={{ marginTop: 'var(--spacing-md)', paddingTop: 'var(--spacing-md)', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 700 }}>
                                 <span>Total Amount</span>
-                                <span className="text-gradient">₹{totalPrice.toLocaleString('en-IN')}</span>
+                                <span className="text-gradient">{totalPrice.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
                         <Link href="/checkout">

@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
                 {/* Image Gallery */}
                 <div>
                     <div className="glass-card" style={{ position: 'relative', height: '500px', marginBottom: 'var(--spacing-md)' }}>
-                        <Image src={product.images[activeImage] || '/placeholder.jpg'} alt={product.name} fill style={{ objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+                        <Image src={product.images[activeImage] || '/placeholder.jpg'} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
                     </div>
                     <div style={{ display: 'flex', gap: 'var(--spacing-sm)', overflowX: 'auto', paddingBottom: 'var(--spacing-xs)' }}>
                         {product.images.map((img, idx) => (
@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
                                 borderRadius: 'var(--radius-md)', overflow: 'hidden',
                                 border: activeImage === idx ? '2px solid var(--color-primary)' : '2px solid transparent'
                             }}>
-                                <Image src={img} alt={`Thumbnail ${idx}`} fill style={{ objectFit: 'cover' }} />
+                                <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="80px" style={{ objectFit: 'cover' }} />
                             </div>
                         ))}
                     </div>
@@ -120,7 +120,7 @@ export default function ProductDetailPage() {
                 <div>
                     <h1 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-sm)' }}>{product.name}</h1>
                     <p style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: 'var(--spacing-lg)' }}>
-                        {product.isComingSoon || product.price === 0 ? 'Coming Soon' : `₹${product.price.toLocaleString('en-IN')}`}
+                        {product.isComingSoon || product.price === 0 ? 'Coming Soon' : `${product.price.toLocaleString('en-IN')}`}
                     </p>
                     <p style={{ color: 'var(--color-text-light)', lineHeight: 1.8, marginBottom: 'var(--spacing-xl)' }}>
                         {product.description}

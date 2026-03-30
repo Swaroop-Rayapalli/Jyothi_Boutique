@@ -58,18 +58,22 @@ export default function CheckoutPage() {
     return (
         <div className="container section animate-fade-in">
             <h1 className="text-gradient" style={{ marginBottom: 'var(--spacing-2xl)' }}>Checkout</h1>
-            <div className="grid" style={{ gridTemplateColumns: '1fr 400px', gap: 'var(--spacing-3xl)' }}>
+            <div className="checkout-grid" style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', 
+                gap: 'var(--spacing-3xl)' 
+            }}>
                 {/* Form */}
-                <form onSubmit={handleCheckout} className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
+                <form id="checkout-form" onSubmit={handleCheckout} className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
                     <h2 style={{ marginBottom: 'var(--spacing-lg)' }}>Shipping Information</h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
                         <input type="text" name="name" placeholder="Full Name" required value={formData.name} onChange={handleChange} style={inputStyle} />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-md)' }}>
                             <input type="email" name="email" placeholder="Email" required value={formData.email} onChange={handleChange} style={inputStyle} />
                             <input type="tel" name="phone" placeholder="Phone" required value={formData.phone} onChange={handleChange} style={inputStyle} />
                         </div>
                         <textarea name="address" placeholder="Address" required value={formData.address} onChange={handleChange} style={{ ...inputStyle, minHeight: '100px' }} />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-md)' }}>
                             <input type="text" name="city" placeholder="City" required value={formData.city} onChange={handleChange} style={inputStyle} />
                             <input type="text" name="pincode" placeholder="Pincode" required value={formData.pincode} onChange={handleChange} style={inputStyle} />
                         </div>
@@ -84,20 +88,27 @@ export default function CheckoutPage() {
                             {items.map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                                     <span style={{ color: 'var(--color-text-light)' }}>{item.name} x {item.quantity}</span>
-                                    <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                                    <span>{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                                 </div>
                             ))}
                             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--spacing-sm)', display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 'var(--spacing-sm)' }}>
                                 <span>Total</span>
-                                <span>₹{totalPrice.toLocaleString('en-IN')}</span>
+                                <span>{totalPrice.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
-                        <Button type="submit" variant="primary" size="lg" style={{ width: '100%' }} disabled={isProcessing} onClick={handleCheckout}>
-                            {isProcessing ? 'Processing...' : `Pay ₹${totalPrice.toLocaleString('en-IN')}`}
+                        <Button type="submit" form="checkout-form" variant="primary" size="lg" style={{ width: '100%' }} disabled={isProcessing}>
+                            {isProcessing ? 'Processing...' : `Pay ${totalPrice.toLocaleString('en-IN')}`}
                         </Button>
                     </div>
                 </div>
             </div>
+            <style jsx>{`
+                @media (max-width: 1024px) {
+                    .checkout-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

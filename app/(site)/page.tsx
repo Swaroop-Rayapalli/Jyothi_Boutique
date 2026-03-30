@@ -179,7 +179,7 @@ export default function Home() {
             {[
               { name: 'Thanjavur Paintings', image: '/products/saree-2.png', link: '/products?category=thanjavur' },
               { name: 'Custom Embroidery', image: '/products/pastel-blouse.jpg', link: '/products?category=embroidery' },
-              { name: 'Thanjavur Frame Paints', image: '/placeholder.jpg', link: '/products?category=thanjavur', isComingSoon: true }
+              { name: 'Thanjavur Frame Paints', image: '/placeholder.jpg', link: '/products?'}
             ].map((category, index) => (
               <Link key={index} href={category.link} className="glass-card" style={{
                 position: 'relative',
@@ -213,7 +213,7 @@ export default function Home() {
                     textShadow: '0 2px 10px rgba(0,0,0,0.5)',
                     marginBottom: '8px'
                   }}>{category.name}</h3>
-                  {category.isComingSoon && (
+                  {(
                     <span style={{
                       display: 'inline-block',
                       padding: '4px 12px',
@@ -223,7 +223,7 @@ export default function Home() {
                       fontSize: '0.875rem',
                       fontWeight: 700,
                       textTransform: 'uppercase'
-                    }}>Coming Soon</span>
+                    }}>Explore More</span>
                   )}
                 </div>
                 <style jsx>{`
@@ -306,8 +306,8 @@ export default function Home() {
               ))
             ) : feedbacks.length > 0 ? (
               feedbacks.map((item) => (
-                <div key={item.id} className="glass-card" style={{ padding: 'var(--spacing-lg)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
+                <div key={item.id} className="glass-card feedback-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap', marginBottom: 'var(--spacing-sm)' }}>
                     <h3 style={{ fontSize: '1.25rem', color: 'white' }}>{item.name}</h3>
                     <div style={{ display: 'flex', gap: '2px', color: 'var(--color-primary)' }}>
                       {[...Array(5)].map((_, i) => (
@@ -342,6 +342,16 @@ export default function Home() {
             )}
           </div>
         </div>
+        <style jsx>{`
+          .feedback-card {
+            padding: var(--spacing-lg);
+          }
+          @media (max-width: 640px) {
+            .feedback-card {
+              padding: var(--spacing-sm);
+            }
+          }
+        `}</style>
       </section>
     </div>
   );

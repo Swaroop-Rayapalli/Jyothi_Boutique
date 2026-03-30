@@ -85,6 +85,12 @@ h3 { font-size: clamp(1.5rem, 5vw, 2rem); }
   padding: var(--spacing-2xl) 0;
 }
 
+@media (max-width: 768px) {
+  .section {
+    padding: var(--spacing-lg) 0;
+  }
+}
+
 .glass-card {
   background: rgba(45, 11, 32, 0.4);
   backdrop-filter: blur(12px);

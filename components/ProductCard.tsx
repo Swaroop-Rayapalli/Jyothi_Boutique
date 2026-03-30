@@ -21,6 +21,7 @@ export default function ProductCard({ id, name, price, image, category, isComing
                     src={image}
                     alt={name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     style={{ objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
                     className="product-image"
                 />
@@ -67,7 +68,7 @@ export default function ProductCard({ id, name, price, image, category, isComing
 
                 <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="text-gradient" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                        {isComingSoon || price === 0 ? 'Coming Soon' : `₹${price.toLocaleString('en-IN')}`}
+                        {isComingSoon || price === 0 ? 'Coming Soon' : `${price.toLocaleString('en-IN')}`}
                     </span>
                     <Link href={`/products/${id}`}>
                         <Button variant="outline" size="sm">{isComingSoon ? 'Details' : 'View'}</Button>

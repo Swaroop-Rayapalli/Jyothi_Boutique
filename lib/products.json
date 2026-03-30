@@ -1,0 +1,74 @@
+[
+    {
+        "id": "9",
+        "name": "Thanjavur Frame Paints",
+        "description": "Exquisite Thanjavur paintings in ornate wooden frames.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb6.jpg",
+            "/images/jb6.jpg"
+        ],
+        "categoryId": "thanjavur",
+        "isFeatured": true
+    },
+    {
+        "id": "11",
+        "name": "Peacock Majesty Thanjavur Painting",
+        "description": "Royal peacock motif in traditional Thanjavur style with vibrant emerald and gold detailing.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb1.jpeg",
+            "/images/jb1.jpeg"
+        ],
+        "categoryId": "thanjavur",
+        "isFeatured": true
+    },
+    {
+        "id": "12",
+        "name": "Royal Elephant Hand-Painted Clutch",
+        "description": "Exquisite hand-painted elephant motif on a luxury black silk clutch, featuring ornate gold line work.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb2.jpeg",
+            "/images/jb2.jpeg"
+        ],
+        "categoryId": "thanjavur",
+        "isFeatured": true
+    },
+    {
+        "id": "13",
+        "name": "Divine Radha Krishna Thanjavur Art",
+        "description": "Circular Thanjavur composition depicting the divine love of Radha and Krishna on a rich crimson background.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb3.jpeg",
+            "/images/jb3.jpeg"
+        ],
+        "categoryId": "thanjavur",
+        "isFeatured": true
+    },
+    {
+        "id": "14",
+        "name": "Sacred Kamadhenu Thanjavur Embroidery",
+        "description": "Intricate thread work depicting the sacred cow Kamadhenu, embellished with traditional floral motifs.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb4.jpeg",
+            "/images/jb4.jpeg"
+        ],
+        "categoryId": "embroidery",
+        "isFeatured": true
+    },
+    {
+        "id": "15",
+        "name": "Vivaha Samskara Wedding Heritage Painting",
+        "description": "A monumental Thanjavur artwork capturing the sacred moments of a traditional Indian wedding ceremony.",
+        "price": "For more details, contact us",
+        "images": [
+            "/images/jb5.jpeg",
+            "/images/jb5.jpeg"
+        ],
+        "categoryId": "thanjavur",
+        "isFeatured": true
+    }
+]
