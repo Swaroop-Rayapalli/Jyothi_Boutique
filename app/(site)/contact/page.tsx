@@ -46,7 +46,7 @@ export default function ContactPage() {
                         </div>
                         <div style={{ background: 'rgba(255,255,255,0.05)', padding: 'var(--spacing-md)', borderRadius: 'var(--radius-md)' }}>
                             <h3 style={{ color: 'var(--color-primary)', fontSize: '1.125rem' }}>Call Us</h3>
-                            <p style={{ color: 'var(--color-text-light)' }}>+91 9030600126</p>
+                            <p style={{ color: 'var(--color-text-light)' }}>+91 7286916108</p>
                         </div>
                     </div>
                 </div>
@@ -64,6 +64,19 @@ export default function ContactPage() {
                         {status === 'ERROR' && <p style={{ color: 'var(--color-error)', textAlign: 'center' }}>Failed to send message. Try again later.</p>}
                     </form>
                 </div>
+            </div>
+
+            {/* Google Maps Section */}
+            <div style={{ marginTop: 'var(--spacing-3xl)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3797.7441221191397!2d83.41164967595568!3d17.850550183116416!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a39599ab234c89d%3A0xc3f3458de1c88814!2sINS%20Kalinga!5e0!3m2!1sen!2sin!4v1712234000000!5m2!1sen!2sin" 
+                    width="100%" 
+                    height="450" 
+                    style={{ border: 0 }} 
+                    allowFullScreen={true} 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
             </div>
         </div>
     );

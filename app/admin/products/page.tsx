@@ -23,11 +23,14 @@ export default function AdminProductsPage() {
         name: '',
         description: '',
         price: 0,
-        images: [''],
+        images: [],
         categoryId: 'thanjavur',
         isFeatured: false,
         isComingSoon: false
     });
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchProducts();
@@ -52,23 +55,53 @@ export default function AdminProductsPage() {
             name: '',
             description: '',
             price: 0,
-            images: ['/placeholder.jpg'],
+            images: [],
             categoryId: 'thanjavur',
             isFeatured: false,
             isComingSoon: false
         });
+        setSelectedFiles([]);
+        setPreviews([]);
         setIsModalOpen(true);
     };
 
     const openEditModal = (product: Product) => {
         setEditingProduct(product);
         setFormData({ ...product });
+        setSelectedFiles([]);
+        setPreviews([]);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingProduct(null);
+        setSelectedFiles([]);
+        previews.forEach(url => URL.revokeObjectURL(url));
+        setPreviews([]);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            setSelectedFiles(prev => [...prev, ...files]);
+            
+            const newPreviews = files.map(file => URL.createObjectURL(file));
+            setPreviews(prev => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeNewImage = (index: number) => {
+        URL.revokeObjectURL(previews[index]);
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+        setPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingImage = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images?.filter((_, i) => i !== index)
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -76,11 +109,25 @@ export default function AdminProductsPage() {
         const method = editingProduct ? 'PUT' : 'POST';
         const url = '/api/admin/products';
         
+        const data = new FormData();
+        if (editingProduct) data.append('id', editingProduct.id);
+        data.append('name', formData.name || '');
+        data.append('description', formData.description || '');
+        data.append('price', (formData.price || 0).toString());
+        data.append('categoryId', formData.categoryId || 'thanjavur');
+        data.append('isFeatured', (formData.isFeatured || false).toString());
+        data.append('isComingSoon', (formData.isComingSoon || false).toString());
+        
+        // Append existing image URLs
+        formData.images?.forEach(img => data.append('existingImages', img));
+        
+        // Append new files
+        selectedFiles.forEach(file => data.append('images', file));
+
         try {
             const res = await fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: data // Fetch handles form data headers automatically
             });
             
             if (res.ok) {
@@ -130,8 +177,12 @@ export default function AdminProductsPage() {
                             <tr key={product.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background 0.2s' }} className="hover:bg-white/5">
                                 <td style={{ padding: '1rem 1.5rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '0.5rem', overflow: 'hidden' }}>
-                                            <Image src={product.images[0]} alt={product.name} fill sizes="48px" style={{ objectFit: 'cover' }} />
+                                        <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '0.5rem', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
+                                            {product.images && product.images.length > 0 ? (
+                                                <Image src={product.images[0]} alt={product.name} fill sizes="48px" style={{ objectFit: 'cover' }} />
+                                            ) : (
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '1.5rem' }}>🖼️</div>
+                                            )}
                                         </div>
                                         <div>
                                             <p style={{ fontWeight: 600 }}>{product.name}</p>
@@ -214,8 +265,8 @@ export default function AdminProductsPage() {
                                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>Price</label>
                                         <input 
                                             type="number" 
-                                            value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                                            value={isNaN(formData.price ?? 0) ? '' : formData.price}
+                                            onChange={(e) => setFormData({ ...formData, price: e.target.value ? parseInt(e.target.value) : 0 })}
                                             style={{ width: '100%', padding: '0.8rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white' }} 
                                         />
                                     </div>
@@ -243,13 +294,58 @@ export default function AdminProductsPage() {
                                 </div>
 
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>Image URL (comma separated for multiple)</label>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>Product Images</label>
+                                    
+                                    {/* Previews of existing and new images */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.5rem', marginBottom: '1rem' }}>
+                                        {/* Existing Images */}
+                                        {formData.images?.map((url, idx) => (
+                                            <div key={`existing-${idx}`} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                {url ? (
+                                                    <Image src={url} alt="Existing" fill style={{ objectFit: 'cover' }} />
+                                                ) : (
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '2rem' }}>🖼️</div>
+                                                )}
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => removeExistingImage(idx)}
+                                                    style={{ position: 'absolute', top: 2, right: 2, background: 'rgba(239, 68, 68, 0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}
+                                                >✕</button>
+                                            </div>
+                                        ))}
+                                        
+                                        {/* New Previews */}
+                                        {previews.map((url, idx) => (
+                                            <div key={`new-${idx}`} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid #fbbf24' }}>
+                                                <Image src={url} alt="New" fill style={{ objectFit: 'cover' }} />
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => removeNewImage(idx)}
+                                                    style={{ position: 'absolute', top: 2, right: 2, background: 'rgba(239, 68, 68, 0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                >✕</button>
+                                            </div>
+                                        ))}
+                                        
+                                        {/* Add Button */}
+                                        <button 
+                                            type="button"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            style={{ width: '80px', height: '80px', borderRadius: '0.25rem', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', color: '#94a3b8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: '4px' }}
+                                        >
+                                            <span style={{ fontSize: '1.25rem' }}>+</span>
+                                            <span style={{ fontSize: '0.625rem' }}>Upload</span>
+                                        </button>
+                                    </div>
+
                                     <input 
-                                        type="text" 
-                                        value={formData.images?.join(', ')}
-                                        onChange={(e) => setFormData({ ...formData, images: e.target.value.split(',').map(s => s.trim()) })}
-                                        style={{ width: '100%', padding: '0.8rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white' }} 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        multiple 
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ display: 'none' }} 
                                     />
+                                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Select one or more product photos.</p>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>

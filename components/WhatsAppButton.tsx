@@ -1,7 +1,7 @@
 'use client';
 
 export default function WhatsAppButton() {
-    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '917286916108';
     const message = encodeURIComponent('Hi! I would like to inquire about your Thanjavur Paintings and custom embroidery.');
 
     return (

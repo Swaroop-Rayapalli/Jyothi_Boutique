@@ -19,6 +19,7 @@ export default function FeedbackPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [rating, setRating] = useState(5);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchFeedback = async () => {
@@ -89,8 +90,8 @@ export default function FeedbackPage() {
                                 <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Rating</label>
-                                <div style={{ display: 'flex', gap: '4px', padding: '0.5rem 0' }}>
+                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', marginLeft: '70px' }}>Rating</label>
+                                <div style={{ display: 'flex', gap: '3px', padding: '0.5rem 0', marginLeft: '70px' }}>
                                     {[1, 2, 3, 4, 5].map((star) => (
                                         <button
                                             key={star}
@@ -193,18 +194,27 @@ export default function FeedbackPage() {
                                             marginTop: 'var(--spacing-md)'
                                         }}>
                                             {item.images.map((img, idx) => (
-                                                <div key={idx} style={{ 
-                                                    position: 'relative', 
-                                                    height: '120px', 
-                                                    borderRadius: 'var(--radius-sm)', 
-                                                    overflow: 'hidden',
-                                                    border: '1px solid var(--color-border)'
-                                                }}>
+                                                <div 
+                                                    key={idx} 
+                                                    onClick={() => setSelectedImage(img)}
+                                                    className="feedback-image-thumb"
+                                                    style={{ 
+                                                        position: 'relative', 
+                                                        height: '120px', 
+                                                        borderRadius: 'var(--radius-sm)', 
+                                                        overflow: 'hidden',
+                                                        border: '1px solid var(--color-border)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
                                                     <img 
                                                         src={img} 
                                                         alt={`Feedback image ${idx + 1}`} 
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                     />
+                                                    <div className="thumb-overlay">
+                                                        <span>🔍</span>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -220,6 +230,19 @@ export default function FeedbackPage() {
                 </div>
             </div>
 
+            {/* Standard Modal (Not Full Screen) */}
+            {selectedImage && (
+                <div 
+                    className="modal-overlay"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
+                        <img src={selectedImage} alt="Feedback View" className="modal-image" />
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(10px); }
@@ -232,6 +255,65 @@ export default function FeedbackPage() {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     gap: var(--spacing-md);
+                }
+                .feedback-image-thumb {
+                    transition: transform 0.3s ease, border-color 0.3s ease;
+                }
+                .feedback-image-thumb:hover {
+                    transform: scale(1.05);
+                    border-color: var(--color-primary);
+                }
+                .thumb-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: rgba(0,0,0,0.4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                }
+                .feedback-image-thumb:hover .thumb-overlay {
+                    opacity: 1;
+                }
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                }
+                .modal-container {
+                    position: relative;
+                    background: #1e293b;
+                    padding: 0.5rem;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                    max-width: 600px;
+                    width: 95%;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .modal-image {
+                    width: 100%;
+                    height: auto;
+                    max-height: 70vh;
+                    object-fit: contain;
+                    border-radius: 0.25rem;
+                }
+                .modal-close {
+                    position: absolute;
+                    top: -35px;
+                    right: 0;
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 2rem;
+                    cursor: pointer;
+                    line-height: 1;
                 }
                 @media (max-width: 640px) {
                     .feedback-card {

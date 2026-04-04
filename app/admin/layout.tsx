@@ -14,13 +14,42 @@ export default function AdminLayout({
     const isLoginPage = pathname === '/admin/login';
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
+    const [profile, setProfile] = useState({ username: 'Admin', profilePhoto: '' });
+
+    const fetchProfile = async () => {
+        try {
+            const res = await fetch('/api/admin/profile');
+            if (res.ok) {
+                const data = await res.json();
+                setProfile(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch profile in layout:', error);
+        }
+    };
 
     useEffect(() => {
         setIsMounted(true);
-        if (window.innerWidth < 1024) {
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
             setIsSidebarOpen(false);
         }
+        fetchProfile();
+
+        // Listen for profile updates from the profile page
+        window.addEventListener('profileUpdate', fetchProfile);
+        return () => window.removeEventListener('profileUpdate', fetchProfile);
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            const res = await fetch('/api/admin/auth/logout', { method: 'POST' });
+            if (res.ok) {
+                router.push('/admin/login');
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
 
     if (isLoginPage) {
         return <>{children}</>;
@@ -28,8 +57,10 @@ export default function AdminLayout({
 
     const navItems = [
         { name: 'Dashboard', path: '/admin', icon: '📊' },
+        { name: 'Manage Orders', path: '/admin/orders', icon: '📦' },
         { name: 'Manage Products', path: '/admin/products', icon: '🛍️' },
         { name: 'Manage Feedback', path: '/admin/feedback', icon: '💬' },
+        { name: 'My Profile', path: '/admin/profile', icon: '👤' },
     ];
 
     return (
@@ -76,7 +107,7 @@ export default function AdminLayout({
                 <div style={{ padding: '2rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {isMounted && (
                         <h2 style={{ fontSize: isSidebarOpen ? '1.5rem' : '1.25rem', fontWeight: 800, color: '#fbbf24', margin: 0, transition: 'all 0.3s' }}>
-                            {isSidebarOpen ? 'JB ADMIN' : 'JB'}
+                            {isSidebarOpen ? (profile.username?.toUpperCase() || 'JB ADMIN') : (profile.username?.charAt(0).toUpperCase() || 'JB')}
                         </h2>
                     )}
                     <button 
@@ -111,7 +142,7 @@ export default function AdminLayout({
                     </ul>
                 </nav>
 
-                <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <Link href="/" style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -125,6 +156,28 @@ export default function AdminLayout({
                         <span>🏠</span>
                         {isSidebarOpen && <span>Back to Site</span>}
                     </Link>
+                    
+                    <button 
+                        onClick={handleLogout}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '0.75rem 1rem',
+                            borderRadius: '0.5rem',
+                            background: 'none',
+                            border: 'none',
+                            color: '#f43f5e',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            width: '100%',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <span>🚪</span>
+                        {isSidebarOpen && <span style={{ fontWeight: 600 }}>Logout</span>}
+                    </button>
                 </div>
             </aside>
 
@@ -177,20 +230,38 @@ export default function AdminLayout({
                                 <span style={{ position: 'absolute', top: '-1px', right: '-1px', background: '#ef4444', width: '6px', height: '6px', borderRadius: '50%', border: '2px solid #0f172a' }}></span>
                             </button>
                             
-                            <div style={{ 
-                                width: '32px', 
-                                height: '32px', 
-                                borderRadius: '50%', 
-                                background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                fontWeight: 700,
-                                color: '#0f172a',
-                                fontSize: '0.875rem'
-                            }}>
-                                A
-                            </div>
+                            <Link href="/admin/profile" title="My Profile" style={{ textDecoration: 'none' }}>
+                                {profile.profilePhoto ? (
+                                    <div style={{ 
+                                        width: '32px', 
+                                        height: '32px', 
+                                        borderRadius: '50%', 
+                                        backgroundImage: `url(${profile.profilePhoto})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        cursor: 'pointer',
+                                        border: '2px solid rgba(251, 191, 36, 0.5)',
+                                        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.2)'
+                                    }}></div>
+                                ) : (
+                                    <div style={{ 
+                                        width: '32px', 
+                                        height: '32px', 
+                                        borderRadius: '50%', 
+                                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        fontWeight: 700,
+                                        color: '#0f172a',
+                                        fontSize: '0.875rem',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.3)'
+                                    }}>
+                                        {profile.username?.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                            </Link>
                         </div>
                     </div>
                 </header>

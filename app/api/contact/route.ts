@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         // Email options
         const mailOptions = {
             from: process.env.EMAIL_FROM,
-            to: 'pawcare376@gmail.com', // Recipient specified by user
+            to: process.env.EMAIL_USER, // Admin Recipient
             replyTo: email,
             subject: `Contact Form Message from Jyothi Boutique: ${subject}`,
             text: `

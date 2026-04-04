@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
             const mailOptions = {
                 from: process.env.EMAIL_FROM,
-                to: 'pawcare376@gmail.com',
+                to: process.env.EMAIL_USER,
                 subject: `New Feedback Received: ${name}`,
                 text: `
 Name: ${name}

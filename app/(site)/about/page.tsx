@@ -10,7 +10,7 @@ export default function AboutPage() {
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'url(/images/about-hero.png) center/cover', zIndex: -1, opacity: 0.5 }}></div>
                 <div className="container text-center relative z-10">
                     <h1 style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>Our Heritage</h1>
-                    <p style={{ fontSize: '1.5rem', color: 'var(--color-primary)', textShadow: '0 2px 5px rgba(0,0,0,0.8)' }}>Weaving Dreams Since 2010</p>
+                    <p style={{ fontSize: '1.5rem', color: 'var(--color-primary)', textShadow: '0 2px 5px rgba(0,0,0,0.8)' }}>Weaving Dreams Since 2023</p>
                 </div>
             </section>
 
