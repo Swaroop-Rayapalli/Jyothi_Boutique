@@ -1,6 +1,8 @@
 {
     "email": "jyothipaints15@gmail.com",
-    "password": "7xrmwrj",
+    "password": "Jyothi1585",
     "username": "Admin",
-    "profilePhoto": "/uploads/profile/admin-profile-65f08880.JPG"
+    "profilePhoto": "/uploads/profile/admin-profile-65f08880.JPG",
+    "tempPassword": null,
+    "tempPasswordExpires": null
 }

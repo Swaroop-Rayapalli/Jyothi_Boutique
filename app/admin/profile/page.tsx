@@ -184,7 +184,7 @@ export default function AdminProfilePage() {
             {error && <div className="alert error">{error}</div>}
             {message && <div className="alert success">{message}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(550px, 1fr))', gap: '2rem' }}>
                 {/* Account Details */}
                 <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fbbf24', margin: 0 }}>Account Information</h2>
