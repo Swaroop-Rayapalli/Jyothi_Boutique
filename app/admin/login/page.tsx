@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const adminEmail = "jyothipaints15@gmail.com";
@@ -105,14 +106,37 @@ export default function AdminLoginPage() {
                         Forgot Password?
                     </button>
                 </div>
-                <input 
-                    type="password" 
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="admin-input"
-                />
+                <div style={{ position: 'relative' }}>
+                    <input 
+                        type={showPassword ? "text" : "password"} 
+                        required
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="admin-input"
+                        style={{ paddingRight: '2.5rem' }}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                            position: 'absolute',
+                            right: '0.875rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            color: '#94a3b8',
+                            cursor: 'pointer',
+                            fontSize: '1.1rem',
+                            padding: '0',
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        {showPassword ? '🙈' : '👁️'}
+                    </button>
+                </div>
             </div>
             <button type="submit" disabled={loading} className="btn-admin-primary" style={{ width: '100%', padding: '1rem', marginTop: '0.5rem' }}>
                 {loading ? 'Authenticating...' : 'Sign In'}

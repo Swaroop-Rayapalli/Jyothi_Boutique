@@ -9,6 +9,9 @@ export default function AdminProfilePage() {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(true);
     const [error, setError] = useState('');
@@ -241,36 +244,63 @@ export default function AdminProfilePage() {
                     <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
                             <label style={labelStyle}>Current Password</label>
-                            <input 
-                                type="password" 
-                                required 
-                                value={oldPassword}
-                                onChange={(e) => setOldPassword(e.target.value)}
-                                style={inputStyle} 
-                                placeholder="••••••••"
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input 
+                                    type={showOldPassword ? "text" : "password"} 
+                                    required 
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    style={{ ...inputStyle, paddingRight: '2.5rem' }} 
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowOldPassword(!showOldPassword)}
+                                    style={eyeButtonStyle}
+                                >
+                                    {showOldPassword ? '🙈' : '👁️'}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>New Password</label>
-                            <input 
-                                type="password" 
-                                required 
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                style={inputStyle} 
-                                placeholder="••••••••"
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input 
+                                    type={showNewPassword ? "text" : "password"} 
+                                    required 
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    style={{ ...inputStyle, paddingRight: '2.5rem' }} 
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                    style={eyeButtonStyle}
+                                >
+                                    {showNewPassword ? '🙈' : '👁️'}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Confirm New Password</label>
-                            <input 
-                                type="password" 
-                                required 
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                style={inputStyle} 
-                                placeholder="••••••••"
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input 
+                                    type={showConfirmPassword ? "text" : "password"} 
+                                    required 
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    style={{ ...inputStyle, paddingRight: '2.5rem' }} 
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    style={eyeButtonStyle}
+                                >
+                                    {showConfirmPassword ? '🙈' : '👁️'}
+                                </button>
+                            </div>
                         </div>
                         <button 
                             type="submit" 
@@ -346,4 +376,20 @@ const inputStyle: React.CSSProperties = {
     border: '1px solid rgba(255, 255, 255, 0.1)',
     color: 'white',
     fontSize: '0.925rem'
+};
+
+const eyeButtonStyle: React.CSSProperties = {
+    position: 'absolute',
+    right: '0.875rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'none',
+    border: 'none',
+    color: '#94a3b8',
+    cursor: 'pointer',
+    fontSize: '1.1rem',
+    padding: '0',
+    display: 'flex',
+    alignItems: 'center',
+    zIndex: 5
 };
