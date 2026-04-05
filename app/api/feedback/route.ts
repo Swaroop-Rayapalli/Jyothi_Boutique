@@ -62,8 +62,13 @@ export async function POST(req: Request) {
         let feedbackList = [];
         try {
             const data = await fs.readFile(FEEDBACK_PATH, 'utf-8');
-            feedbackList = JSON.parse(data);
-        } catch (e) {}
+            if (data.trim()) {
+                feedbackList = JSON.parse(data);
+            }
+        } catch (e: any) {
+            console.warn(`[Feedback API] Could not parse ${FEEDBACK_PATH}, initializing empty list:`, e.message);
+            feedbackList = [];
+        }
         
         feedbackList.unshift(newFeedback); // Newest first
         await fs.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2));

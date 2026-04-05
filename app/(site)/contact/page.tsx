@@ -11,19 +11,32 @@ export default function ContactPage() {
         e.preventDefault();
         setIsSubmitting(true);
         setStatus(null);
+        
         const form = e.currentTarget;
         const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
         try {
-            const res = await fetch('/api/contact', {
+            // First, we still record the contact in our local storage for reference
+            await fetch('/api/contact', {
                 method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
+                body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' },
             });
-            if (res.ok) {
-                setStatus('SUCCESS');
-                form.reset();
-            } else throw new Error('Failed to send message');
-        } catch (err) {
+
+            // Construct WhatsApp Message
+            const whatsappNumber = "917286916108";
+            const message = `*Jyothi Boutique Contact Request*\n\n*Name:* ${data.name}\n*Email:* ${data.email}\n*Subject:* ${data.subject}\n\n*Message:*\n${data.message}`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+            // Redirect to WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            setStatus('SUCCESS');
+            form.reset();
+        } catch (e: any) {
+            console.error('Contact form error:', e);
             setStatus('ERROR');
         } finally {
             setIsSubmitting(false);
