@@ -27,29 +27,55 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    console.log('[Feedback API] New submission request received.');
     try {
-        await ensureDir(UPLOADS_DIR);
-        const formData = await req.formData();
+        // 1. Ensure folders exist
+        try {
+            await fs.mkdir(UPLOADS_DIR, { recursive: true });
+            const libDir = path.dirname(FEEDBACK_PATH);
+            await fs.mkdir(libDir, { recursive: true });
+        } catch (dirError: any) {
+            console.error('[Feedback API] Folder creation failed:', dirError.message);
+        }
         
-        const name = formData.get('name') as string;
-        const rating = parseInt(formData.get('rating') as string) || 5;
-        const comment = formData.get('comment') as string;
+        // 2. Parse Form Data
+        let formData;
+        try {
+            formData = await req.formData();
+        } catch (formError: any) {
+            console.error('[Feedback API] Form parsing failed:', formError.message);
+            return NextResponse.json({ success: false, error: 'Could not parse form data', details: formError.message }, { status: 400 });
+        }
+        
+        const name = formData.get('name') as string || 'Anonymous';
+        const ratingRaw = formData.get('rating') as string;
+        const rating = parseInt(ratingRaw) || 5;
+        const comment = formData.get('comment') as string || '';
         const files = formData.getAll('images') as File[];
         
-        const imageUrls: string[] = [];
+        console.log(`[Feedback API] Body: ${name}, Rating: ${rating}, Images: ${files.length}`);
         
+        // 3. Process Images
+        const imageUrls: string[] = [];
         for (const file of files) {
             if (file && file.size > 0) {
-                const buffer = Buffer.from(await file.arrayBuffer());
-                const extension = path.extname(file.name) || '.jpg';
-                const fileName = `${crypto.randomUUID()}${extension}`;
-                const filePath = path.join(UPLOADS_DIR, fileName);
-                
-                await fs.writeFile(filePath, buffer);
-                imageUrls.push(`/uploads/feedback/${fileName}`);
+                try {
+                    const buffer = Buffer.from(await file.arrayBuffer());
+                    const extension = path.extname(file.name) || '.jpg';
+                    const fileName = `${crypto.randomUUID()}${extension}`;
+                    const filePath = path.join(UPLOADS_DIR, fileName);
+                    
+                    await fs.writeFile(filePath, buffer);
+                    imageUrls.push(`/uploads/feedback/${fileName}`);
+                    console.log(`[Feedback API] Saved: ${fileName}`);
+                } catch (fileWriteError: any) {
+                    console.error('[Feedback API] Image write failed:', fileWriteError.message);
+                    // Continue without this image instead of failing everything
+                }
             }
         }
         
+        // 4. Update JSON Storage
         const newFeedback = {
             id: crypto.randomUUID(),
             name,
@@ -62,45 +88,38 @@ export async function POST(req: Request) {
         let feedbackList = [];
         try {
             const data = await fs.readFile(FEEDBACK_PATH, 'utf-8');
-            if (data.trim()) {
+            if (data && data.trim()) {
                 feedbackList = JSON.parse(data);
             }
-        } catch (e: any) {
-            console.warn(`[Feedback API] Could not parse ${FEEDBACK_PATH}, initializing empty list:`, e.message);
+        } catch (readError: any) {
+            console.warn('[Feedback API] feedback.json read failed, starting with empty list.');
             feedbackList = [];
         }
         
-        feedbackList.unshift(newFeedback); // Newest first
-        await fs.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2));
-
-        // --- Email Notification to Admin ---
+        feedbackList.unshift(newFeedback);
+        
         try {
-            await notifyAdmin(
-                `New Feedback Received: ${name}`,
-                `
-Name: ${name}
-Rating: ${rating}/5
-Comment: ${comment}
-Date: ${new Date().toLocaleString()}
-                `,
-                `
-<h3>New Feedback Received from Jyothi Boutique</h3>
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Rating:</strong> ${rating}/5</p>
-<p><strong>Comment:</strong> ${comment}</p>
-<p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-                `
-            );
-            console.log('Feedback notification sent to admin.');
-        } catch (emailError) {
-            console.error('Failed to send feedback email notification:', emailError);
-            // We don't fail the entire request if email fails, as feedback is already saved
+            await fs.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2));
+            console.log('[Feedback API] feedback.json updated successfully.');
+        } catch (writeError: any) {
+            console.error('[Feedback API] CRITICAL: feedback.json write failed:', writeError.message);
+            return NextResponse.json({ success: false, error: 'Storage write failed', details: writeError.message }, { status: 500 });
         }
-        // ------------------------------------
+
+        // 5. Async Notification (Silent)
+        notifyAdmin(
+            `New Feedback: ${name}`,
+            `Name: ${name}\nRating: ${rating}/5\nComment: ${comment}`,
+            `<h3>Feedback from Boutique</h3><p><b>Name:</b> ${name}</p><p><b>Rating:</b> ${rating}/5</p><p><b>Comment:</b> ${comment}</p>`
+        ).catch(e => console.error('[Feedback API] Silent Email Error:', e.message));
         
         return NextResponse.json({ success: true, feedback: newFeedback });
-    } catch (error) {
-        console.error('Feedback submission error:', error);
-        return NextResponse.json({ success: false, error: 'Failed to submit feedback' }, { status: 500 });
+    } catch (globalError: any) {
+        console.error('[Feedback API] GLOBAL FAILURE:', globalError);
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Feedback submission failed', 
+            details: globalError.message 
+        }, { status: 500 });
     }
 }
