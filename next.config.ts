@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/**/*': ['./dev.db'],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default nextConfig;

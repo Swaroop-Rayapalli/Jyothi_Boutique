@@ -7,17 +7,18 @@ export async function POST(req: Request) {
         const { name, email, subject, message } = body;
 
         // Use the centralized mail utility to notify the admin
-        await notifyAdmin(
-            `Contact Form Message from Jyothi Boutique: ${subject}`,
-            `
+        try {
+            await notifyAdmin(
+                `Contact Form Message from Jyothi Boutique: ${subject}`,
+                `
 Name: ${name}
 Email: ${email}
 Subject: ${subject}
 
 Message:
 ${message}
-            `,
-            `
+                `,
+                `
 <h3>Contact Form Message from Jyothi Boutique</h3>
 <p><strong>Name:</strong> ${name}</p>
 <p><strong>Email:</strong> ${email}</p>
@@ -25,10 +26,14 @@ ${message}
 <br/>
 <p><strong>Message:</strong></p>
 <p>${message.replace(/\n/g, '<br/>')}</p>
-            `
-        );
+                `
+            );
+            console.log('Contact form submission notification sent successfully.');
+        } catch (mailError) {
+            console.error('Contact form email notification failed, but request will succeed:', mailError);
+            // We don't throw here so the user gets a success message
+        }
 
-        console.log('Contact form submission notification sent successfully.');
         return NextResponse.json({ success: true });
     } catch (error) {
         // Detailed error logging is already handled in lib/mail.ts

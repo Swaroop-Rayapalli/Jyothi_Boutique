@@ -67,15 +67,7 @@ export default function Home() {
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
-      <section style={{
-        position: 'relative',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        paddingTop: '8rem',
-        overflow: 'hidden',
-        background: 'linear-gradient(to right, var(--color-background) 0%, rgba(31, 4, 21, 0.8) 100%)'
-      }}>
+      <section className="hero-section">
         <div 
           className="hero-image"
           style={{
@@ -141,6 +133,15 @@ export default function Home() {
         </div>
 
         <style jsx>{`
+          .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(to right, var(--color-background) 0%, rgba(31, 4, 21, 0.8) 100%);
+            padding-top: 8rem;
+          }
           .hero-content {
             max-width: 600px;
           }
@@ -151,12 +152,28 @@ export default function Home() {
             }
           }
           @media (max-width: 640px) {
+            .hero-section {
+              padding-top: 10rem;
+              min-height: auto;
+              display: block;
+            }
             .hero-content {
               text-align: center;
               margin: 0 auto;
+              width: 100%;
+              padding: 0 1.25rem;
+            }
+            .hero-content h1 {
+              font-size: 2.15rem !important;
+              margin-bottom: 1.25rem !important;
+            }
+            .hero-content p {
+              margin-bottom: 1.75rem !important;
+              font-size: 0.95rem !important;
             }
             .hero-content div {
               justify-content: center;
+              gap: 0.75rem !important;
             }
           }
         `}</style>
