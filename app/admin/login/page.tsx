@@ -93,6 +93,7 @@ export default function AdminLoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="admin-input"
+                    autoComplete="email"
                 />
             </div>
             <div style={{ textAlign: 'left' }}>
@@ -115,6 +116,7 @@ export default function AdminLoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         className="admin-input"
                         style={{ paddingRight: '2.5rem' }}
+                        autoComplete="current-password"
                     />
                     <button
                         type="button"
@@ -204,10 +206,18 @@ export default function AdminLoginPage() {
                 }
                 .login-card {
                     max-width: 420px;
-                    width: 100%;
+                    width: 90%;
                     padding: 3rem 2.5rem;
                     text-align: center;
                     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                }
+                @media (max-width: 640px) {
+                    .login-card {
+                        padding: 2.5rem 1.75rem;
+                    }
+                    .admin-input {
+                        padding: 0.75rem !important;
+                    }
                 }
                 .login-header { margin-bottom: 2rem; }
                 .login-icon { font-size: 3.5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.2)); }

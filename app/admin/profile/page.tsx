@@ -12,11 +12,14 @@ export default function AdminProfilePage() {
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [isSendingRecovery, setIsSendingRecovery] = useState(false);
     const [profileLoading, setProfileLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchProfile() {
@@ -41,7 +44,7 @@ export default function AdminProfilePage() {
         e.preventDefault();
         setError('');
         setMessage('');
-        setLoading(true);
+        setIsSavingProfile(true);
 
         try {
             const formData = new FormData();
@@ -70,7 +73,7 @@ export default function AdminProfilePage() {
         } catch (err) {
             setError('An error occurred during profile update');
         } finally {
-            setLoading(false);
+            setIsSavingProfile(false);
         }
     };
 
@@ -84,7 +87,7 @@ export default function AdminProfilePage() {
             return;
         }
 
-        setLoading(true);
+        setIsUpdatingPassword(true);
         try {
             const res = await fetch('/api/admin/auth/change-password', {
                 method: 'POST',
@@ -104,7 +107,7 @@ export default function AdminProfilePage() {
         } catch (err) {
             setError('An error occurred during password change');
         } finally {
-            setLoading(false);
+            setIsUpdatingPassword(false);
         }
     };
 
@@ -122,7 +125,7 @@ export default function AdminProfilePage() {
     const handleResetTrigger = async () => {
         if (!confirm('This will send a temporary password (valid for 5 mins) to your email. You will not be logged out until you choose to. Proceed?')) return;
 
-        setLoading(true);
+        setIsSendingRecovery(true);
         try {
             const res = await fetch('/api/admin/auth/forgot-password', {
                 method: 'POST',
@@ -139,7 +142,7 @@ export default function AdminProfilePage() {
         } catch (err) {
             setError('An error occurred during reset process');
         } finally {
-            setLoading(false);
+            setIsSendingRecovery(false);
         }
     };
 
@@ -150,22 +153,23 @@ export default function AdminProfilePage() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '900px' }}>
             {/* Header section */}
-            <div className="glass-card" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                <div style={{ 
-                    width: '100px', 
-                    height: '100px', 
-                    borderRadius: '50%', 
-                    background: profilePhoto ? `url(${profilePhoto}) center/cover` : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    fontSize: '3rem',
-                    fontWeight: 800,
-                    color: '#0f172a',
-                    border: '4px solid rgba(251, 191, 36, 0.2)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                }}>
-                    {!profilePhoto && username?.charAt(0).toUpperCase()}
+            <div className="glass-card profile-header-card" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                <div 
+                    className="hover-scale"
+                    onClick={() => (profilePhoto || photoPreview) && setFullScreenImage(photoPreview || profilePhoto)}
+                    style={{ 
+                        width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', 
+                        fontWeight: 800, color: '#0f172a', border: '4px solid rgba(251, 191, 36, 0.2)', 
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)', overflow: 'hidden', flexShrink: 0,
+                        cursor: (profilePhoto || photoPreview) ? 'zoom-in' : 'default'
+                    }}
+                >
+                    {profilePhoto ? (
+                        <img src={profilePhoto} alt={username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                        username?.charAt(0).toUpperCase()
+                    )}
                 </div>
                 <div>
                     <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: 0 }}>{username || 'Administrative Profile'}</h1>
@@ -184,13 +188,13 @@ export default function AdminProfilePage() {
             {error && <div className="alert error">{error}</div>}
             {message && <div className="alert success">{message}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(550px, 1fr))', gap: '2rem' }}>
+            <div className="profile-grid">
                 {/* Account Details */}
-                <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fbbf24', margin: 0 }}>Account Information</h2>
                     <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: 0 }}>Update your public-facing administrative name and profile picture.</p>
                     
-                    <form onSubmit={handleProfileUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <form onSubmit={handleProfileUpdate} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                         <div>
                             <label style={labelStyle}>Display Username</label>
                             <input 
@@ -199,19 +203,29 @@ export default function AdminProfilePage() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 style={inputStyle} 
                                 placeholder="Admin"
+                                autoComplete="username"
                             />
                         </div>
                         <div>
                             <label style={labelStyle}>Profile Photo</label>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                                <div style={{ 
-                                    width: '60px', 
-                                    height: '60px', 
-                                    borderRadius: '12px', 
-                                    background: photoPreview ? `url(${photoPreview}) center/cover` : (profilePhoto ? `url(${profilePhoto}) center/cover` : 'rgba(255,255,255,0.05)'), 
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    flexShrink: 0
-                                }}></div>
+                                <div 
+                                    className="hover-scale"
+                                    onClick={() => (photoPreview || profilePhoto) && setFullScreenImage(photoPreview || profilePhoto)}
+                                    style={{ 
+                                        width: '60px', 
+                                        height: '60px', 
+                                        borderRadius: '12px', 
+                                        background: 'rgba(255,255,255,0.05)', 
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        flexShrink: 0,
+                                        overflow: 'hidden',
+                                        cursor: (photoPreview || profilePhoto) ? 'zoom-in' : 'default'
+                                    }}>
+                                    {(photoPreview || profilePhoto) && (
+                                        <img src={photoPreview || profilePhoto} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    )}
+                                </div>
                                 <input 
                                     type="file" 
                                     id="photo-upload"
@@ -225,23 +239,29 @@ export default function AdminProfilePage() {
                                 />
                             </div>
                         </div>
+                        <div style={{ flex: 1 }}></div>
                         <button 
                             type="submit" 
-                            disabled={loading} 
+                            disabled={isSavingProfile} 
                             className="btn-admin-primary" 
-                            style={{ padding: '0.875rem', marginTop: '0.5rem' }}
+                            style={{ padding: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', minHeight: '48px' }}
                         >
-                            {loading ? 'Saving Changes...' : 'Save Profile Changes'}
+                            {isSavingProfile ? (
+                                <>
+                                    <span className="spinner-small"></span>
+                                    <span>Saving Changes...</span>
+                                </>
+                            ) : 'Save Profile Changes'}
                         </button>
                     </form>
                 </div>
 
                 {/* Manual Change Password */}
-                <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fbbf24', margin: 0 }}>Change Password</h2>
                     <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: 0 }}>Provide your current password to set a new one manually.</p>
                     
-                    <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <form onSubmit={handleChangePassword} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
                             <label style={labelStyle}>Current Password</label>
                             <div style={{ position: 'relative' }}>
@@ -252,6 +272,7 @@ export default function AdminProfilePage() {
                                     onChange={(e) => setOldPassword(e.target.value)}
                                     style={{ ...inputStyle, paddingRight: '2.5rem' }} 
                                     placeholder="••••••••"
+                                    autoComplete="current-password"
                                 />
                                 <button
                                     type="button"
@@ -272,6 +293,7 @@ export default function AdminProfilePage() {
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     style={{ ...inputStyle, paddingRight: '2.5rem' }} 
                                     placeholder="••••••••"
+                                    autoComplete="new-password"
                                 />
                                 <button
                                     type="button"
@@ -292,6 +314,7 @@ export default function AdminProfilePage() {
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     style={{ ...inputStyle, paddingRight: '2.5rem' }} 
                                     placeholder="••••••••"
+                                    autoComplete="new-password"
                                 />
                                 <button
                                     type="button"
@@ -302,13 +325,19 @@ export default function AdminProfilePage() {
                                 </button>
                             </div>
                         </div>
+                        <div style={{ flex: 1 }}></div>
                         <button 
                             type="submit" 
-                            disabled={loading} 
+                            disabled={isUpdatingPassword} 
                             className="btn-admin-primary" 
-                            style={{ padding: '0.875rem', marginTop: '0.5rem' }}
+                            style={{ padding: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', minHeight: '48px' }}
                         >
-                            {loading ? 'Updating...' : 'Update Password'}
+                            {isUpdatingPassword ? (
+                                <>
+                                    <span className="spinner-small"></span>
+                                    <span>Updating...</span>
+                                </>
+                            ) : 'Update Password'}
                         </button>
                     </form>
                 </div>
@@ -327,7 +356,7 @@ export default function AdminProfilePage() {
                             </div>
                             <button 
                                 onClick={handleResetTrigger}
-                                disabled={loading}
+                                disabled={isSendingRecovery}
                                 style={{ 
                                     background: '#f43f5e', 
                                     color: 'white', 
@@ -336,10 +365,14 @@ export default function AdminProfilePage() {
                                     borderRadius: '0.5rem', 
                                     fontWeight: 700, 
                                     cursor: 'pointer',
-                                    fontSize: '0.875rem'
+                                    fontSize: '0.875rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
                                 }}
                             >
-                                Send Recovery Password
+                                {isSendingRecovery && <span className="spinner-small" style={{ borderColor: 'white', borderTopColor: 'transparent' }}></span>}
+                                {isSendingRecovery ? 'Sending...' : 'Send Recovery Password'}
                             </button>
                         </div>
                     </div>
@@ -347,6 +380,28 @@ export default function AdminProfilePage() {
             </div>
 
             <style jsx global>{`
+                .spinner-small {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid rgba(15, 23, 42, 0.4);
+                    border-top-color: #0f172a;
+                    border-radius: 50%;
+                    animation: spin 0.8s linear infinite;
+                }
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                .hover-scale {
+                    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .hover-scale:hover {
+                    transform: scale(1.05);
+                }
+                .profile-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 2rem;
+                }
                 .alert {
                     padding: 0.75rem 1rem;
                     border-radius: 0.5rem;
@@ -356,7 +411,48 @@ export default function AdminProfilePage() {
                 }
                 .alert.error { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2); }
                 .alert.success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+                
+                @media (max-width: 640px) {
+                    .profile-header-card {
+                        flex-direction: column;
+                        text-align: center;
+                        gap: 1rem !important;
+                    }
+                    .profile-header-card > div:first-child {
+                        margin: 0 auto;
+                    }
+                    .profile-header-card div:last-child {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+                    .profile-grid {
+                        grid-template-columns: 1fr;
+                        gap: 1rem;
+                    }
+                }
             `}</style>
+            {/* Photo View (Lightbox) */}
+            {fullScreenImage && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.95)', backdropFilter: 'blur(15px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 3000, cursor: 'zoom-out'
+                }} onClick={() => setFullScreenImage(null)}>
+                    <button 
+                        onClick={() => setFullScreenImage(null)} 
+                        style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '50px', height: '50px', fontSize: '2rem', cursor: 'pointer', zIndex: 3001 }}
+                    >&times;</button>
+                    <div style={{ position: 'relative', width: '90vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img 
+                            src={fullScreenImage} 
+                            alt="Full Screen View" 
+                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '8px' }} 
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

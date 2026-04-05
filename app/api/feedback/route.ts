@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { notifyAdmin } from '@/lib/mail';
 
 const FEEDBACK_PATH = path.join(process.cwd(), 'lib', 'feedback.json');
 const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'feedback');
@@ -69,36 +70,22 @@ export async function POST(req: Request) {
 
         // --- Email Notification to Admin ---
         try {
-            const transporter = nodemailer.createTransport({
-                host: process.env.EMAIL_HOST,
-                port: Number(process.env.EMAIL_PORT),
-                secure: process.env.EMAIL_PORT === '465',
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASSWORD,
-                },
-            });
-
-            const mailOptions = {
-                from: process.env.EMAIL_FROM,
-                to: process.env.EMAIL_USER,
-                subject: `New Feedback Received: ${name}`,
-                text: `
+            await notifyAdmin(
+                `New Feedback Received: ${name}`,
+                `
 Name: ${name}
 Rating: ${rating}/5
 Comment: ${comment}
 Date: ${new Date().toLocaleString()}
                 `,
-                html: `
+                `
 <h3>New Feedback Received from Jyothi Boutique</h3>
 <p><strong>Name:</strong> ${name}</p>
 <p><strong>Rating:</strong> ${rating}/5</p>
 <p><strong>Comment:</strong> ${comment}</p>
 <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-                `,
-            };
-
-            await transporter.sendMail(mailOptions);
+                `
+            );
             console.log('Feedback notification sent to admin.');
         } catch (emailError) {
             console.error('Failed to send feedback email notification:', emailError);

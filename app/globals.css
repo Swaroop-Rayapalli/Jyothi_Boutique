@@ -77,7 +77,7 @@ h3 { font-size: clamp(1.5rem, 5vw, 2rem); }
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-md);
   box-sizing: border-box;
 }
 
@@ -87,7 +87,11 @@ h3 { font-size: clamp(1.5rem, 5vw, 2rem); }
 
 @media (max-width: 768px) {
   .section {
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xl) 0;
+    overflow-x: hidden;
+  }
+  .container {
+    padding: 0 var(--spacing-md);
   }
 }
 
@@ -163,5 +167,50 @@ h3 { font-size: clamp(1.5rem, 5vw, 2rem); }
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Header Responsiveness */
+.desktop-nav { 
+  display: flex; 
+}
+.mobile-menu-btn { 
+  display: none; 
+}
+
+@media (max-width: 1024px) {
+  .desktop-nav { 
+    display: none !important; 
+  }
+  .mobile-menu-btn { 
+    display: block !important; 
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text { 
+    display: none !important; 
+  }
+}
+
+/* Mobile Menu Overlay Animation */
+.mobile-menu-overlay {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin Login Responsive Scaling */
+@media (max-width: 640px) {
+  .login-card {
+    width: 95% !important;
+    padding: 2rem 1.5rem !important;
+  }
+  .admin-input {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS */
+    padding: 12px 16px !important;
   }
 }

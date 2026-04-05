@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '@/lib/mail';
 import { getAdminData, saveAdminData } from '@/lib/admin-store';
 
 // Helper to generate a random alphanumeric password
@@ -31,20 +31,8 @@ export async function POST(request: Request) {
         
         await saveAdminData(adminData);
 
-        // Configure Nodemailer transporter (same as before)
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: parseInt(process.env.EMAIL_PORT || '587'),
-            secure: process.env.EMAIL_PORT === '465',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD,
-            },
-        });
-
-        // Email content
-        const mailOptions = {
-            from: process.env.EMAIL_FROM,
+        // Send the email using the centralized mail utility
+        await sendEmail({
             to: adminData.email,
             subject: 'Admin Password Reset - Jyothi Boutique',
             html: `
@@ -64,9 +52,7 @@ export async function POST(request: Request) {
                     </p>
                 </div>
             `,
-        };
-
-        await transporter.sendMail(mailOptions);
+        });
 
         return NextResponse.json({ success: true, message: 'New password sent to your email' });
     } catch (error) {

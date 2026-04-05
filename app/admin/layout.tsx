@@ -188,7 +188,7 @@ export default function AdminLayout({
                         {isMounted && typeof window !== 'undefined' && window.innerWidth < 1024 && (
                             <button 
                                 onClick={() => setIsSidebarOpen(true)}
-                                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '0.5rem', cursor: 'pointer', fontSize: '1.25rem', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '0.4rem 0.6rem', cursor: 'pointer', fontSize: '1.1rem', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                                 ☰
                             </button>
@@ -199,7 +199,7 @@ export default function AdminLayout({
                                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
                                 <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Boutique Management</p>
                             </div>
-                            <h1 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.75rem)', fontWeight: 700, margin: 0, color: 'white' }}>
+                            <h1 style={{ fontSize: 'clamp(1rem, 4vw, 1.5rem)', fontWeight: 700, margin: 0, color: 'white', whiteSpace: 'nowrap' }}>
                                 {navItems.find(i => i.path === pathname)?.name || 'Admin'}
                             </h1>
                         </div>

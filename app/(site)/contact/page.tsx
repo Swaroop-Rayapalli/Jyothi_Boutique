@@ -53,8 +53,8 @@ export default function ContactPage() {
 
                 <div className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                        <input type="text" name="name" placeholder="Your Name" required style={inputStyle} />
-                        <input type="email" name="email" placeholder="Your Email" required style={inputStyle} />
+                        <input type="text" name="name" placeholder="Your Name" required style={inputStyle} autoComplete="name" />
+                        <input type="email" name="email" placeholder="Your Email" required style={inputStyle} autoComplete="email" />
                         <input type="text" name="subject" placeholder="Subject" required style={inputStyle} />
                         <textarea name="message" placeholder="Your Message" required style={{ ...inputStyle, minHeight: '150px' }} />
                         <Button type="submit" variant="primary" size="lg" disabled={isSubmitting}>

@@ -87,7 +87,7 @@ export default function FeedbackPage() {
                         <div className="form-grid">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                                 <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Name</label>
-                                <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} />
+                                <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} autoComplete="name" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                                 <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', marginLeft: '70px' }}>Rating</label>

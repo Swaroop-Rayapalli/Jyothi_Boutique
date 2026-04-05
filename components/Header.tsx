@@ -81,7 +81,7 @@ export default function Header() {
                 </Link>
 
                 {/* Desktop Navigation (Centered) */}
-                <nav className="desktop-nav" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <nav className="desktop-nav" style={{ flex: 1, justifyContent: 'center' }}>
                     <ul style={{ display: 'flex', gap: 'var(--spacing-xl)', listStyle: 'none', margin: 0, padding: 0 }}>
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
@@ -157,7 +157,6 @@ export default function Header() {
                             border: 'none',
                             color: 'var(--color-text)',
                             cursor: 'pointer',
-                            display: 'none', // Hidden on desktop, shown via CSS media query
                         }}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -171,49 +170,49 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Mobile Navigation */}
-            {isMenuOpen && (
-                <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    background: 'rgba(31, 4, 21, 0.95)',
-                    backdropFilter: 'blur(16px)',
-                    borderBottom: '1px solid var(--color-border)',
-                    padding: 'var(--spacing-md) 0',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-md)'
-                }}>
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            onClick={() => setIsMenuOpen(false)}
-                            style={{
-                                color: pathname === link.href ? 'var(--color-primary)' : 'var(--color-text)',
-                                fontSize: '1.25rem',
-                                fontWeight: pathname === link.href ? 600 : 400,
-                                textTransform: 'uppercase',
-                                textDecoration: 'none',
-                            }}
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                </div>
-            )}
-            <style jsx>{`
-                @media (max-width: 768px) {
-                    .desktop-nav { display: none !important; }
-                    .mobile-menu-btn { display: block !important; }
-                }
-                @media (max-width: 380px) {
-                    .logo-text { display: none; }
-                }
-            `}</style>
+            {/* Mobile Navigation Overlay */}
+            <div className="mobile-menu-overlay" style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100vh',
+                background: 'rgba(31, 4, 21, 0.98)',
+                backdropFilter: 'blur(16px)',
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '8rem 2rem 2rem',
+                gap: '2rem',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: isMenuOpen ? 1 : 0,
+                visibility: isMenuOpen ? 'visible' : 'hidden',
+                transform: isMenuOpen ? 'translateY(0)' : 'translateY(-10px)',
+                pointerEvents: isMenuOpen ? 'auto' : 'none'
+            }}>
+                {navLinks.map((link, index) => (
+                    <Link
+                        key={link.name}
+                        href={link.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        style={{
+                            color: pathname === link.href ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '1.75rem',
+                            fontWeight: pathname === link.href ? 700 : 400,
+                            textTransform: 'uppercase',
+                            textDecoration: 'none',
+                            letterSpacing: '0.1em',
+                            fontFamily: 'var(--font-playfair)',
+                            transition: 'all 0.3s ease',
+                            transitionDelay: `${index * 50}ms`,
+                            transform: isMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                            opacity: isMenuOpen ? 1 : 0
+                        }}
+                    >
+                        {link.name}
+                    </Link>
+                ))}
+            </div>
         </header>
     );
 }
