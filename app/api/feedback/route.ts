@@ -107,11 +107,15 @@ export async function POST(req: Request) {
         }
 
         // 5. Async Notification (Silent)
-        notifyAdmin(
-            `New Feedback: ${name}`,
-            `Name: ${name}\nRating: ${rating}/5\nComment: ${comment}`,
-            `<h3>Feedback from Boutique</h3><p><b>Name:</b> ${name}</p><p><b>Rating:</b> ${rating}/5</p><p><b>Comment:</b> ${comment}</p>`
-        ).catch(e => console.error('[Feedback API] Silent Email Error:', e.message));
+        if (process.env.EMAIL_USER) {
+            notifyAdmin(
+                `New Feedback: ${name}`,
+                `Name: ${name}\nRating: ${rating}/5\nComment: ${comment}`,
+                `<h3>Feedback from Boutique</h3><p><b>Name:</b> ${name}</p><p><b>Rating:</b> ${rating}/5</p><p><b>Comment:</b> ${comment}</p>`
+            ).catch(e => console.error('[Feedback API] Silent Email Error:', e.message));
+        } else {
+            console.warn('[Feedback API] Skipping email notification: EMAIL_USER not configured.');
+        }
         
         return NextResponse.json({ success: true, feedback: newFeedback });
     } catch (globalError: any) {

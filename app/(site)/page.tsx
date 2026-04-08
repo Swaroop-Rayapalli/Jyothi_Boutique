@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Button from '@/components/Button';
 import ProductCard from '@/components/ProductCard';
@@ -30,6 +30,16 @@ export default function Home() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(true);
+  
+  // Feedback Form State
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackStatus, setFeedbackStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const feedbackFileRef = useRef<HTMLInputElement>(null);
+
+  // Contact Form State
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [contactStatus, setContactStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -63,6 +73,110 @@ export default function Home() {
     fetchFeatured();
     fetchFeedback();
   }, []);
+
+  const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 1200;
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Canvas to Blob failed'));
+          }, 'image/jpeg', 0.8);
+        };
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleFeedbackSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmittingFeedback(true);
+    setFeedbackStatus(null);
+    const form = e.currentTarget;
+    const formData = new FormData();
+    formData.append('name', (form.elements.namedItem('name') as HTMLInputElement).value);
+    formData.append('rating', feedbackRating.toString());
+    formData.append('comment', (form.elements.namedItem('comment') as HTMLTextAreaElement).value);
+
+    try {
+      const files = feedbackFileRef.current?.files;
+      if (files && files.length > 0) {
+        setFeedbackStatus({ type: 'success', message: 'Compressing images...' });
+        for (let i = 0; i < files.length; i++) {
+          const compressedBlob = await compressImage(files[i]);
+          formData.append('images', compressedBlob, `image_${i}.jpg`);
+        }
+      }
+      setFeedbackStatus(null);
+      const res = await fetch('/api/feedback', { method: 'POST', body: formData });
+      if (res.ok) {
+        setFeedbackStatus({ type: 'success', message: 'Thank you for your feedback!' });
+        form.reset();
+        setFeedbackRating(5);
+        // Refresh feedback list
+        const refreshedRes = await fetch('/api/feedback');
+        if (refreshedRes.ok) {
+          const data = await refreshedRes.json();
+          setFeedbacks(data.slice(0, 3));
+        }
+      } else {
+        throw new Error('Failed to submit feedback');
+      }
+    } catch (err) {
+      setFeedbackStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+    } finally {
+      setIsSubmittingFeedback(false);
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmittingContact(true);
+    setContactStatus(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const whatsappNumber = "917286916108";
+      const message = `*Jyothi Boutique Contact Request*\n\n*Name:* ${data.name}\n*Email:* ${data.email}\n*Subject:* ${data.subject}\n\n*Message:*\n${data.message}`;
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+      setContactStatus('SUCCESS');
+      form.reset();
+    } catch (e) {
+      setContactStatus('ERROR');
+    } finally {
+      setIsSubmittingContact(false);
+    }
+  };
 
   return (
     <div className="animate-fade-in">
@@ -359,17 +473,131 @@ export default function Home() {
             )}
           </div>
         </div>
-        <style jsx>{`
-          .feedback-card {
-            padding: var(--spacing-lg);
-          }
-          @media (max-width: 640px) {
-            .feedback-card {
-              padding: var(--spacing-sm);
-            }
-          }
-        `}</style>
+      </section>
+
+      {/* Write Feedback Section */}
+      <section id="write-feedback" className="section">
+        <div className="container" style={{ maxWidth: '800px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-2xl)' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-xs)' }}>Share Your Experience</h2>
+            <p style={{ color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Your feedback inspires us</p>
+          </div>
+          <div className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
+            <form onSubmit={handleFeedbackSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }} className="form-grid">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Name</label>
+                  <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} autoComplete="name" />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Rating</label>
+                  <div style={{ display: 'flex', gap: '4px', padding: '0.5rem 0' }}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setFeedbackRating(star)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: star <= feedbackRating ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
+                          fontSize: '1.5rem',
+                          transition: 'color 0.2s'
+                        }}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Comment</label>
+                <textarea name="comment" placeholder="Tell us about your experience..." required style={{ ...inputStyle, minHeight: '120px' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Attach Images (Optional)</label>
+                <input type="file" name="images" multiple accept="image/*" ref={feedbackFileRef} style={{ ...inputStyle, padding: '0.75rem' }} />
+              </div>
+              <Button type="submit" variant="primary" size="lg" disabled={isSubmittingFeedback}>
+                {isSubmittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+              </Button>
+              {feedbackStatus && (
+                <p style={{
+                  color: feedbackStatus.type === 'success' ? 'var(--color-success)' : 'var(--color-error)',
+                  textAlign: 'center',
+                  marginTop: 'var(--spacing-sm)'
+                }}>
+                  {feedbackStatus.message}
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="section" style={{ background: 'var(--color-surface)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-3xl)' }}>
+            <h2 style={{ fontSize: '3rem', marginBottom: 'var(--spacing-xs)' }}>Get in Touch</h2>
+            <p style={{ color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>We'd love to hear from you</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-3xl)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
+              <div>
+                <h3 style={{ fontSize: '1.75rem', marginBottom: 'var(--spacing-md)' }}>Visit Our Studio</h3>
+                <p style={{ color: 'var(--color-text-light)', lineHeight: 1.8, fontSize: '1.1rem' }}>
+                  INS Kalinga, Blue Marino<br />
+                  Visakhapatnam, Andhra Pradesh 531163
+                </p>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.75rem', marginBottom: 'var(--spacing-md)' }}>Contact Details</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                  <p style={{ display: 'flex', gap: '12px', color: 'var(--color-text-light)' }}>
+                    <span style={{ color: 'var(--color-primary)' }}>📞</span> +91 7286916108
+                  </p>
+                  <p style={{ display: 'flex', gap: '12px', color: 'var(--color-text-light)' }}>
+                    <span style={{ color: 'var(--color-primary)' }}>✉️</span> jyothipaints15@gmail.com
+                  </p>
+                </div>
+              </div>
+              <div style={{ marginTop: 'var(--spacing-md)' }}>
+                <Button variant="secondary" onClick={() => window.open('https://wa.me/917286916108', '_blank')}>
+                  Chat on WhatsApp
+                </Button>
+              </div>
+            </div>
+            <div className="glass-card" style={{ padding: 'var(--spacing-xl)' }}>
+              <form onSubmit={handleContactSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                <input type="text" name="name" placeholder="Your Name" required style={inputStyle} autoComplete="name" />
+                <input type="email" name="email" placeholder="Your Email" required style={inputStyle} autoComplete="email" />
+                <input type="text" name="subject" placeholder="Subject" required style={inputStyle} />
+                <textarea name="message" placeholder="Your Message" required style={{ ...inputStyle, minHeight: '150px' }} />
+                <Button type="submit" variant="primary" size="lg" disabled={isSubmittingContact}>
+                  {isSubmittingContact ? 'Sending...' : 'Send Message'}
+                </Button>
+                {contactStatus === 'SUCCESS' && <p style={{ color: 'var(--color-success)', textAlign: 'center' }}>Message sent successfully!</p>}
+                {contactStatus === 'ERROR' && <p style={{ color: 'var(--color-error)', textAlign: 'center' }}>Failed to send message. Try again later.</p>}
+              </form>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
 }
+
+const inputStyle = {
+  padding: '1rem',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-sm)',
+  color: 'white',
+  width: '100%',
+  fontFamily: 'inherit',
+  outline: 'none',
+  transition: 'border-color 0.2s'
+};
