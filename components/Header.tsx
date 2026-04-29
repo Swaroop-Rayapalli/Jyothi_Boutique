@@ -87,7 +87,7 @@ export default function Header() {
                         letterSpacing: '0.05em',
                         transition: 'all var(--transition-base)'
                     }}>
-                        Jyothi Boutique
+                        Jyothi Paints
                     </span>
                 </Link>
 
