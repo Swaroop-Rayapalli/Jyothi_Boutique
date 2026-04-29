@@ -106,6 +106,43 @@ export default function AdminProductsPage() {
         }));
     };
 
+    const compressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 1200; // Resize to reasonable max dimension
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('Compression failed'));
+                    }, 'image/jpeg', 0.8); // 80% quality JPEG
+                };
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const method = editingProduct ? 'PUT' : 'POST';
@@ -123,12 +160,18 @@ export default function AdminProductsPage() {
         // Append existing image URLs
         formData.images?.forEach(img => data.append('existingImages', img));
         
-        // Append new files
-        selectedFiles.forEach(file => data.append('images', file));
-
         setIsSubmitting(true);
         setStatus(null);
         try {
+            // Compress and append new files
+            if (selectedFiles.length > 0) {
+                setStatus({ type: 'success', message: 'Optimizing images...' });
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const compressedBlob = await compressImage(selectedFiles[i]);
+                    data.append('images', compressedBlob, `product_${i}.jpg`);
+                }
+            }
+
             const res = await fetch(url, {
                 method,
                 body: data // Fetch handles form data headers automatically
