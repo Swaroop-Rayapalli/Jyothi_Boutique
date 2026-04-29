@@ -15,3 +15,17 @@ model Feedback {
   images    String[] @default([])
   date      DateTime @default(now())
 }
+
+model Admin {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  password            String
+  username            String
+  profilePhoto        String?
+  tempPassword        String?
+  tempPasswordExpires Float?
+  otp                 String?
+  otpExpires          Float?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}

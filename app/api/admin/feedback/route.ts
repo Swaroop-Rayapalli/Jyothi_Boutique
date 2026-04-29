@@ -36,12 +36,14 @@ export async function POST(request: Request) {
             }
         }
         
+        const validImageUrls = imageUrls.filter(url => typeof url === 'string' && url.length > 0);
+
         const newFeedback = await prisma.feedback.create({
             data: {
-                name,
-                comment,
-                rating,
-                images: imageUrls,
+                name: String(name),
+                comment: String(comment),
+                rating: Number(rating),
+                images: validImageUrls,
             }
         });
         

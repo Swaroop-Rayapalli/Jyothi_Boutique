@@ -129,6 +129,20 @@ exports.Prisma.FeedbackScalarFieldEnum = {
   date: 'date'
 };
 
+exports.Prisma.AdminScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  password: 'password',
+  username: 'username',
+  profilePhoto: 'profilePhoto',
+  tempPassword: 'tempPassword',
+  tempPasswordExpires: 'tempPasswordExpires',
+  otp: 'otp',
+  otpExpires: 'otpExpires',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -139,9 +153,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-  Feedback: 'Feedback'
+  Feedback: 'Feedback',
+  Admin: 'Admin'
 };
 
 /**

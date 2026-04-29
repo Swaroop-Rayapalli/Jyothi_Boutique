@@ -54,12 +54,14 @@ export async function POST(req: Request) {
         }
         
         // 2. Save to Database using Prisma
+        const validImageUrls = imageUrls.filter(url => typeof url === 'string' && url.length > 0);
+        
         const newFeedback = await prisma.feedback.create({
             data: {
-                name,
-                rating,
-                comment,
-                images: imageUrls,
+                name: String(name),
+                rating: Number(rating),
+                comment: String(comment),
+                images: validImageUrls,
             }
         });
         
