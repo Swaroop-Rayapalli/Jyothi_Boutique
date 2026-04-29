@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getAdminData } from '@/lib/admin-store';
+import { getAdminData, saveAdminData } from '@/lib/admin-store';
 
 export async function POST(request: Request) {
     try {
@@ -14,6 +14,12 @@ export async function POST(request: Request) {
                               adminData.tempPasswordExpires > Date.now();
 
         if (email === adminData.email && (isMainPassword || isTempPassword)) {
+            // Persist the admin record to DB on successful login if not already there
+            // This seeds the DB the first time, so all subsequent operations work correctly
+            await saveAdminData(adminData).catch(e => 
+                console.error('[Login] Failed to seed admin data:', e.message)
+            );
+
             // Set secure HTTP-only cookie
             const cookieStore = await cookies();
             cookieStore.set('admin_session', 'authenticated', {

@@ -250,7 +250,7 @@ export default function AdminFeedbackPage() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>Rating (1-5)</label>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8', paddingLeft:'10rem' }}>Rating (1-5)</label>
                                 <select 
                                     value={formData.rating}
                                     onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
