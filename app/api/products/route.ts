@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { products } from '@/lib/data';
+import prisma from '@/lib/prisma';
+import { categories } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,18 +10,24 @@ export async function GET(req: Request) {
     const featuredParam = searchParams.get('featured');
 
     try {
-        let filteredProducts = products;
+        const where: any = {};
+        if (categoryParam) where.categoryId = categoryParam;
+        if (featuredParam === 'true') where.isFeatured = true;
 
-        if (categoryParam) {
-            filteredProducts = filteredProducts.filter(p => p.category?.slug === categoryParam);
-        }
-        if (featuredParam === 'true') {
-            filteredProducts = filteredProducts.filter(p => p.isFeatured);
-        }
+        const dbProducts = await prisma.product.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+        });
 
-        return NextResponse.json(filteredProducts);
+        // Attach category object so existing frontend code keeps working
+        const products = dbProducts.map(p => ({
+            ...p,
+            category: categories.find(c => c.id === p.categoryId),
+        }));
+
+        return NextResponse.json(products);
     } catch (err) {
-        console.error(err);
+        console.error('GET /api/products error:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

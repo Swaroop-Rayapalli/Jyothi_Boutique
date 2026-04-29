@@ -15,6 +15,19 @@ model Feedback {
   date      DateTime @default(now())
 }
 
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float    @default(0)
+  images      String[] @default([])
+  categoryId  String
+  isFeatured  Boolean  @default(false)
+  isComingSoon Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Admin {
   id                  String   @id @default(uuid())
   email               String   @unique

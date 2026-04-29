@@ -6,16 +6,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function uploadToCloudinary(file: File) {
+/** Upload any File to Cloudinary. folder defaults to feedback for backwards-compat. */
+export async function uploadToCloudinary(
+  file: File,
+  folder: string = 'jyothi-boutique/feedback'
+): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
-      { resource_type: 'auto', folder: 'jyothi-boutique/feedback' },
+      { resource_type: 'auto', folder },
       (error, result) => {
         if (error) reject(error);
-        else resolve(result?.secure_url);
+        else resolve(result!.secure_url);
       }
     ).end(buffer);
   });
