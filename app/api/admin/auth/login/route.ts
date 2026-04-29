@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
         const isMainPassword = password === adminData.password;
         const isTempPassword = adminData.tempPassword && 
-                              password === adminData.tempPassword && 
+                              password === adminData.tempPassword &&
                               adminData.tempPasswordExpires && 
                               adminData.tempPasswordExpires > Date.now();
 

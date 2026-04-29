@@ -1,27 +1,16 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import prisma from '@/lib/prisma';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 import { notifyAdmin } from '@/lib/mail';
-
-const FEEDBACK_PATH = path.join(process.cwd(), 'lib', 'feedback.json');
-const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'feedback');
-
-// Ensure uploads directory exists
-async function ensureDir(dir: string) {
-    try {
-        await fs.access(dir);
-    } catch {
-        await fs.mkdir(dir, { recursive: true });
-    }
-}
 
 export async function GET() {
     try {
-        const data = await fs.readFile(FEEDBACK_PATH, 'utf-8');
-        return NextResponse.json(JSON.parse(data));
+        const feedbacks = await prisma.feedback.findMany({
+            orderBy: { date: 'desc' }
+        });
+        return NextResponse.json(feedbacks);
     } catch (error) {
+        console.error('[Feedback API] GET Failure:', error);
         return NextResponse.json([]);
     }
 }
@@ -29,92 +18,60 @@ export async function GET() {
 export async function POST(req: Request) {
     console.log('[Feedback API] New submission request received.');
     try {
-        // 1. Ensure folders exist
-        try {
-            await fs.mkdir(UPLOADS_DIR, { recursive: true });
-            const libDir = path.dirname(FEEDBACK_PATH);
-            await fs.mkdir(libDir, { recursive: true });
-        } catch (dirError: any) {
-            console.error('[Feedback API] Folder creation failed:', dirError.message);
-        }
-        
-        // 2. Parse Form Data
-        let formData;
-        try {
-            formData = await req.formData();
-        } catch (formError: any) {
-            console.error('[Feedback API] Form parsing failed:', formError.message);
-            return NextResponse.json({ success: false, error: 'Could not parse form data', details: formError.message }, { status: 400 });
-        }
+        const formData = await req.formData();
         
         const name = formData.get('name') as string || 'Anonymous';
-        const ratingRaw = formData.get('rating') as string;
-        const rating = parseInt(ratingRaw) || 5;
+        const rating = parseInt(formData.get('rating') as string) || 5;
         const comment = formData.get('comment') as string || '';
         const files = formData.getAll('images') as File[];
         
-        console.log(`[Feedback API] Body: ${name}, Rating: ${rating}, Images: ${files.length}`);
+        console.log(`[Feedback API] Payload: Name="${name}", Rating=${rating}, ImagesCount=${files.length}`);
         
-        // 3. Process Images
+        // 1. Process Images with Cloudinary
         const imageUrls: string[] = [];
+        console.log(`[Feedback API] Starting image processing for ${files.length} files.`);
+        
         for (const file of files) {
-            if (file && file.size > 0) {
+            if (file && typeof file !== 'string' && file.size > 0) {
                 try {
-                    const buffer = Buffer.from(await file.arrayBuffer());
-                    const extension = path.extname(file.name) || '.jpg';
-                    const fileName = `${crypto.randomUUID()}${extension}`;
-                    const filePath = path.join(UPLOADS_DIR, fileName);
+                    // Fallback check for Cloudinary config
+                    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+                    if (!cloudName || cloudName === 'your_cloud_name') {
+                        console.error('[Feedback API] IMAGE SKIPPED: Cloudinary not configured (placeholder credentials found).');
+                        continue;
+                    }
                     
-                    await fs.writeFile(filePath, buffer);
-                    imageUrls.push(`/uploads/feedback/${fileName}`);
-                    console.log(`[Feedback API] Saved: ${fileName}`);
+                    console.log(`[Feedback API] Uploading ${file.name} to Cloudinary...`);
+                    const url = await uploadToCloudinary(file) as string;
+                    imageUrls.push(url);
+                    console.log(`[Feedback API] Upload SUCCESS: ${url}`);
                 } catch (fileWriteError: any) {
-                    console.error('[Feedback API] Image write failed:', fileWriteError.message);
-                    // Continue without this image instead of failing everything
+                    console.error(`[Feedback API] Upload FAILED for ${file.name}:`, fileWriteError.message);
                 }
+            } else {
+                console.log(`[Feedback API] Skipping empty or invalid file object.`, { type: typeof file, size: (file as any)?.size });
             }
         }
         
-        // 4. Update JSON Storage
-        const newFeedback = {
-            id: crypto.randomUUID(),
-            name,
-            rating,
-            comment,
-            images: imageUrls,
-            date: new Date().toISOString()
-        };
-        
-        let feedbackList = [];
-        try {
-            const data = await fs.readFile(FEEDBACK_PATH, 'utf-8');
-            if (data && data.trim()) {
-                feedbackList = JSON.parse(data);
+        // 2. Save to Database using Prisma
+        const newFeedback = await prisma.feedback.create({
+            data: {
+                name,
+                rating,
+                comment,
+                images: imageUrls,
             }
-        } catch (readError: any) {
-            console.warn('[Feedback API] feedback.json read failed, starting with empty list.');
-            feedbackList = [];
-        }
+        });
         
-        feedbackList.unshift(newFeedback);
-        
-        try {
-            await fs.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2));
-            console.log('[Feedback API] feedback.json updated successfully.');
-        } catch (writeError: any) {
-            console.error('[Feedback API] CRITICAL: feedback.json write failed:', writeError.message);
-            return NextResponse.json({ success: false, error: 'Storage write failed', details: writeError.message }, { status: 500 });
-        }
+        console.log('[Feedback API] Record saved to database.');
 
-        // 5. Async Notification (Silent)
+        // 3. Async Notification (Silent)
         if (process.env.EMAIL_USER) {
             notifyAdmin(
                 `New Feedback: ${name}`,
                 `Name: ${name}\nRating: ${rating}/5\nComment: ${comment}`,
                 `<h3>Feedback from Boutique</h3><p><b>Name:</b> ${name}</p><p><b>Rating:</b> ${rating}/5</p><p><b>Comment:</b> ${comment}</p>`
             ).catch(e => console.error('[Feedback API] Silent Email Error:', e.message));
-        } else {
-            console.warn('[Feedback API] Skipping email notification: EMAIL_USER not configured.');
         }
         
         return NextResponse.json({ success: true, feedback: newFeedback });

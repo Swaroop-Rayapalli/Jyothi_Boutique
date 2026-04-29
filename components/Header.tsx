@@ -52,19 +52,32 @@ export default function Header() {
                 {/* Logo */}
                 <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', zIndex: 10, textDecoration: 'none' }}>
                     <div style={{
-                        width: isScrolled ? '32px' : '40px',
-                        height: isScrolled ? '32px' : '40px',
+                        width: isScrolled ? '40px' : '50px',
+                        height: isScrolled ? '40px' : '50px',
                         borderRadius: 'var(--radius-sm)',
-                        background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
+                        overflow: 'hidden',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'var(--color-secondary)',
-                        fontWeight: 700,
-                        fontSize: isScrolled ? '1.2rem' : '1.5rem',
                         transition: 'all var(--transition-base)'
                     }}>
-                        JB
+                        <img 
+                            src="/images/logo.png" 
+                            alt="JB Logo" 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                                // Fallback to CSS logo if image doesn't exist
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                    e.currentTarget.style.display = 'none';
+                                    parent.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))';
+                                    parent.innerText = 'JB';
+                                    parent.style.color = 'var(--color-secondary)';
+                                    parent.style.fontWeight = '700';
+                                    parent.style.fontSize = isScrolled ? '1.2rem' : '1.5rem';
+                                }
+                            }}
+                        />
                     </div>
                     <span className="logo-text" style={{
                         fontSize: isScrolled ? '1.1rem' : '1.35rem',

@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Feedback {
+  id      String   @id @default(uuid())
+  name    String   @default("Anonymous")
+  rating  Int      @default(5)
+  comment String
+  images  String[] @default([])
+  date    DateTime @default(now())
+}

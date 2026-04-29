@@ -1,102 +1,77 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-
-const feedbackFilePath = path.join(process.cwd(), 'lib', 'feedback.json');
-const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'feedback');
-
-async function getFeedback() {
-    try {
-        const fileContent = await fs.readFile(feedbackFilePath, 'utf8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        return [];
-    }
-}
-
-async function saveFeedback(feedback: any[]) {
-    await fs.writeFile(feedbackFilePath, JSON.stringify(feedback, null, 4), 'utf8');
-}
-
-async function ensureDir(dir: string) {
-    try {
-        await fs.access(dir);
-    } catch {
-        await fs.mkdir(dir, { recursive: true });
-    }
-}
+import prisma from '@/lib/prisma';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export async function GET() {
     try {
-        const feedback = await getFeedback();
-        return NextResponse.json(feedback);
+        const feedbacks = await prisma.feedback.findMany({
+            orderBy: { date: 'desc' }
+        });
+        return NextResponse.json(feedbacks);
     } catch (error) {
+        console.error('[Admin Feedback API] GET Failure:', error);
         return NextResponse.json({ error: 'Failed to fetch feedback' }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
     try {
-        await ensureDir(UPLOADS_DIR);
         const formData = await request.formData();
         
-        const name = formData.get('name') as string;
-        const comment = formData.get('comment') as string;
+        const name = formData.get('name') as string || 'Anonymous';
+        const comment = formData.get('comment') as string || '';
         const rating = parseInt(formData.get('rating') as string) || 5;
-        const isPublic = formData.get('isPublic') === 'true';
         
         const files = formData.getAll('images') as File[];
         const imageUrls: string[] = [];
         
         for (const file of files) {
             if (file && typeof file !== 'string' && file.size > 0) {
-                const buffer = Buffer.from(await file.arrayBuffer());
-                const extension = path.extname(file.name) || '.jpg';
-                const fileName = `${crypto.randomUUID()}${extension}`;
-                const filePath = path.join(UPLOADS_DIR, fileName);
-                
-                await fs.writeFile(filePath, buffer);
-                imageUrls.push(`/uploads/feedback/${fileName}`);
+                try {
+                    const url = await uploadToCloudinary(file) as string;
+                    imageUrls.push(url);
+                } catch (imgErr) {
+                    console.error('[Admin Feedback API] Image upload failed:', imgErr);
+                }
             }
         }
         
-        const feedback = await getFeedback();
-        const newFeedback = {
-            id: crypto.randomUUID(),
-            name,
-            comment,
-            rating,
-            images: imageUrls,
-            isPublic,
-            date: new Date().toISOString()
-        };
-        
-        feedback.unshift(newFeedback);
-        await saveFeedback(feedback);
+        const newFeedback = await prisma.feedback.create({
+            data: {
+                name,
+                comment,
+                rating,
+                images: imageUrls,
+            }
+        });
         
         return NextResponse.json(newFeedback, { status: 201 });
-    } catch (error) {
-        console.error('Failed to create feedback:', error);
-        return NextResponse.json({ error: 'Failed to create feedback' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[Admin Feedback API] POST Failure:', error);
+        return NextResponse.json({ error: 'Failed to create feedback', details: error.message }, { status: 500 });
     }
 }
 
 export async function PUT(request: Request) {
     try {
-        const { id, isPublic } = await request.json();
-        const feedback = await getFeedback();
+        const { id, rating, comment, name } = await request.json();
         
-        const index = feedback.findIndex((f: any) => f.id === id);
-        if (index === -1) {
-            return NextResponse.json({ error: 'Feedback not found' }, { status: 404 });
+        if (!id) {
+            return NextResponse.json({ error: 'Feedback ID is required' }, { status: 400 });
         }
         
-        feedback[index].isPublic = isPublic;
-        await saveFeedback(feedback);
+        const updatedFeedback = await prisma.feedback.update({
+            where: { id },
+            data: {
+                rating,
+                comment,
+                name
+            }
+        });
         
-        return NextResponse.json(feedback[index]);
+        return NextResponse.json(updatedFeedback);
     } catch (error) {
+        console.error('[Admin Feedback API] PUT Failure:', error);
         return NextResponse.json({ error: 'Failed to update feedback' }, { status: 500 });
     }
 }
@@ -110,17 +85,13 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Feedback ID is required' }, { status: 400 });
         }
         
-        const feedback = await getFeedback();
-        const filteredFeedback = feedback.filter((f: any) => f.id !== id);
+        await prisma.feedback.delete({
+            where: { id }
+        });
         
-        if (feedback.length === filteredFeedback.length) {
-            return NextResponse.json({ error: 'Feedback not found' }, { status: 400 });
-        }
-        
-        await saveFeedback(filteredFeedback);
         return NextResponse.json({ message: 'Feedback deleted successfully' });
     } catch (error) {
+        console.error('[Admin Feedback API] DELETE Failure:', error);
         return NextResponse.json({ error: 'Failed to delete feedback' }, { status: 500 });
     }
 }
-

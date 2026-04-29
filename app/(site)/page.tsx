@@ -30,6 +30,7 @@ export default function Home() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(true);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   
   // Feedback Form State
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
@@ -143,10 +144,16 @@ export default function Home() {
           setFeedbacks(data.slice(0, 3));
         }
       } else {
-        throw new Error('Failed to submit feedback');
+        const errorData = await res.json().catch(() => ({ error: 'Server error' }));
+        console.error('[Feedback] Submission failed:', errorData);
+        throw new Error(errorData.error || 'Failed to submit feedback');
       }
-    } catch (err) {
-      setFeedbackStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+    } catch (err: any) {
+      console.error('[Feedback] Catch Block Error:', err);
+      setFeedbackStatus({ 
+        type: 'error', 
+        message: err.message || 'Something went wrong. Please try again.' 
+      });
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -183,7 +190,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero-section">
         <div 
-          className="hero-image"
+          className="hero-image hidden md:block"
           style={{
             position: 'absolute',
             top: 0,
@@ -276,6 +283,9 @@ export default function Home() {
               margin: 0 auto;
               width: 100%;
               padding: 0 1.25rem;
+            }
+            .hero-image {
+              display: none !important;
             }
             .hero-content h1 {
               font-size: 2.15rem !important;
@@ -452,12 +462,15 @@ export default function Home() {
                   {item.images && item.images.length > 0 && (
                     <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', gap: '8px' }}>
                       {item.images.slice(0, 2).map((img, idx) => (
-                        <div key={idx} style={{ 
+                        <div key={idx} 
+                          onClick={() => setLightboxImage(img)}
+                          style={{ 
                           width: '60px', 
                           height: '60px', 
                           borderRadius: 'var(--radius-sm)', 
                           overflow: 'hidden',
-                          border: '1px solid var(--color-border)'
+                          border: '1px solid var(--color-border)',
+                          cursor: 'pointer'
                         }}>
                           <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
@@ -490,8 +503,8 @@ export default function Home() {
                   <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} autoComplete="name" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Rating</label>
-                  <div style={{ display: 'flex', gap: '4px', padding: '0.5rem 0' }}>
+                  <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', paddingLeft: '2rem' }}>Rating</label>
+                  <div style={{ display: 'flex', gap: '4px', paddingLeft: '2rem' }}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -586,6 +599,36 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: 'white', fontSize: '3rem', cursor: 'pointer', lineHeight: 1 }}
+            onClick={() => setLightboxImage(null)}
+          >
+            &times;
+          </button>
+          <img 
+            src={lightboxImage} 
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+            alt="Client Story"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

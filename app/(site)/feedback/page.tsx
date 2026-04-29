@@ -143,12 +143,12 @@ export default function FeedbackPage() {
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
                         <div className="form-grid">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Name</label>
+                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)'}}>Name</label>
                                 <input type="text" name="name" placeholder="Enter your name" required style={inputStyle} autoComplete="name" />
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', marginLeft: '70px' }}>Rating</label>
-                                <div style={{ display: 'flex', gap: '3px', padding: '0.5rem 0', marginLeft: '70px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)', }}>Rating</label>
+                                <div style={{ display: 'flex', gap: '3px', padding: '0.5rem 0',  }}>
                                     {[1, 2, 3, 4, 5].map((star) => (
                                         <button
                                             key={star}
