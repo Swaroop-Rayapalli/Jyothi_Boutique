@@ -97,11 +97,18 @@ export default function ProductDetailPage() {
 
     return (
         <div className="container section animate-fade-in">
-            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-3xl)', marginBottom: 'var(--spacing-3xl)' }}>
+            <div className="product-detail-grid" style={{ marginBottom: 'var(--spacing-3xl)' }}>
                 {/* Image Gallery */}
                 <div>
-                    <div className="glass-card" style={{ position: 'relative', height: '500px', marginBottom: 'var(--spacing-md)' }}>
-                        <Image src={product.images[activeImage] || '/placeholder.jpg'} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+                    <div className="product-main-image-container" style={{ position: 'relative', marginBottom: 'var(--spacing-md)' }}>
+                        <Image 
+                            src={product.images[activeImage] || '/placeholder.jpg'} 
+                            alt={product.name} 
+                            fill 
+                            priority
+                            sizes="(max-width: 768px) 100vw, 50vw" 
+                            style={{ objectFit: 'cover' }} 
+                        />
                     </div>
                     <div style={{ display: 'flex', gap: 'var(--spacing-sm)', overflowX: 'auto', paddingBottom: 'var(--spacing-xs)' }}>
                         {product.images.map((img, idx) => (

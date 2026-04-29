@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Button from '@/components/Button';
 import ProductCard from '@/components/ProductCard';
 
@@ -197,17 +198,22 @@ export default function Home() {
             right: 0,
             bottom: 0,
             width: '100%',
-            opacity: 0.4,
             zIndex: 0,
-            maskImage: 'linear-gradient(to left, black, transparent)',
-            WebkitMaskImage: 'linear-gradient(to left, black, transparent)'
+            maskImage: 'linear-gradient(to left, black 60%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to left, black 60%, transparent)'
           }}
         >
-          <div style={{
-            width: '100%',
-            height: '100%',
-            background: 'url(/images/hero-model.png) center right/contain no-repeat',
-          }}></div>
+          <Image 
+            src="/images/hero-model.png" 
+            alt="Jyothi Paints Model" 
+            fill 
+            priority
+            style={{ 
+              objectFit: 'contain', 
+              objectPosition: 'right center',
+              opacity: 0.8
+            }} 
+          />
         </div>
 
         <div className="container relative z-10">

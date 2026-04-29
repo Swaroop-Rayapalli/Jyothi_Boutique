@@ -30,6 +30,8 @@ export default function AdminProductsPage() {
     });
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -124,6 +126,8 @@ export default function AdminProductsPage() {
         // Append new files
         selectedFiles.forEach(file => data.append('images', file));
 
+        setIsSubmitting(true);
+        setStatus(null);
         try {
             const res = await fetch(url, {
                 method,
@@ -131,11 +135,20 @@ export default function AdminProductsPage() {
             });
             
             if (res.ok) {
+                const message = editingProduct ? 'Product updated successfully!' : 'Product added successfully!';
+                setStatus({ type: 'success', message });
                 fetchProducts();
                 closeModal();
+                // Clear status after 5 seconds
+                setTimeout(() => setStatus(null), 5000);
+            } else {
+                throw new Error('Failed to save product');
             }
         } catch (error) {
             console.error('Failed to save product', error);
+            setStatus({ type: 'error', message: 'Failed to save product. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -156,7 +169,22 @@ export default function AdminProductsPage() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ flex: 1 }}>
+                    {status && (
+                        <div style={{ 
+                            padding: '0.75rem 1.25rem', 
+                            borderRadius: '0.5rem', 
+                            background: status.type === 'success' ? 'rgba(37, 211, 102, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            color: status.type === 'success' ? '#25D366' : '#ef4444',
+                            border: `1px solid ${status.type === 'success' ? 'rgba(37, 211, 102, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                            display: 'inline-block',
+                            fontSize: '0.875rem'
+                        }}>
+                            {status.type === 'success' ? '✅' : '❌'} {status.message}
+                        </div>
+                    )}
+                </div>
                 <button className="btn-admin-primary" onClick={openAddModal}>➕ Add New Product</button>
             </div>
 
@@ -368,8 +396,10 @@ export default function AdminProductsPage() {
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                                    <button type="button" onClick={closeModal} style={{ flex: 1, padding: '0.8rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.1)', color: 'white', border: 'none', cursor: 'pointer', minWidth: '120px' }}>Cancel</button>
-                                    <button type="submit" className="btn-admin-primary" style={{ flex: 1, minWidth: '120px' }}>{editingProduct ? 'Save Changes' : 'Add Product'}</button>
+                                    <button type="button" onClick={closeModal} disabled={isSubmitting} style={{ flex: 1, padding: '0.8rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.1)', color: 'white', border: 'none', cursor: 'pointer', minWidth: '120px', opacity: isSubmitting ? 0.5 : 1 }}>Cancel</button>
+                                    <button type="submit" className="btn-admin-primary" disabled={isSubmitting} style={{ flex: 1, minWidth: '120px', opacity: isSubmitting ? 0.5 : 1 }}>
+                                        {isSubmitting ? 'Saving...' : (editingProduct ? 'Save Changes' : 'Add Product')}
+                                    </button>
                                 </div>
                             </form>
                         </div>
