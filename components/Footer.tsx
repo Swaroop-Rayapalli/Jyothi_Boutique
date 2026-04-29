@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 
+const INSTAGRAM_URL = "https://www.instagram.com/jyothipaints?igsh=MTJwZjd1amlwb3R0dg%3D%3D";
+
 export default function Footer() {
     return (
         <footer style={{
@@ -19,28 +21,59 @@ export default function Footer() {
                 }}>
                     {/* Brand Identity */}
                     <div>
-                        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)' }}>
+                        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)', textDecoration: 'none' }}>
                             <div style={{
-                                width: '32px',
-                                height: '32px',
+                                width: '40px',
+                                height: '40px',
                                 borderRadius: 'var(--radius-sm)',
-                                background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--color-secondary)',
-                                fontWeight: 700,
-                                fontSize: '1.2rem',
+                                overflow: 'hidden',
+                                flexShrink: 0,
                             }}>
-                                JB
+                                <img src="/images/logo.png" alt="JP Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
-                            <span style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'var(--font-playfair)', color: 'var(--color-text)' }}>
-                                Jyothi Boutique
+                            <span style={{ fontSize: '1.4rem', fontWeight: 700, fontFamily: 'var(--font-playfair)', color: 'var(--color-text)' }}>
+                                Jyothi Paints
                             </span>
                         </Link>
                         <p style={{ color: 'var(--color-text-light)', marginBottom: 'var(--spacing-lg)', lineHeight: 1.8 }}>
                             Exquisite handcrafted Thanjavur Paintings and custom embroidery, blending traditional artistry with modern elegance.
                         </p>
+
+                        {/* Instagram Highlight */}
+                        <a
+                            href={INSTAGRAM_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.6rem',
+                                background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)',
+                                padding: '0.6rem 1.2rem',
+                                borderRadius: 'var(--radius-full)',
+                                color: '#fff',
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                textDecoration: 'none',
+                                boxShadow: '0 4px 18px rgba(253,29,29,0.35)',
+                                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                            }}
+                            onMouseEnter={e => {
+                                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 28px rgba(253,29,29,0.5)';
+                            }}
+                            onMouseLeave={e => {
+                                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
+                                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 18px rgba(253,29,29,0.35)';
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <circle cx="12" cy="12" r="4" />
+                                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                            </svg>
+                            Follow on Instagram
+                        </a>
                     </div>
 
                     {/* Quick Links */}
@@ -51,6 +84,22 @@ export default function Footer() {
                             <li><Link href="/products" style={{ color: 'var(--color-text-light)', transition: 'color var(--transition-base)' }} className="hover:text-primary">Collections</Link></li>
                             <li><Link href="/about" style={{ color: 'var(--color-text-light)', transition: 'color var(--transition-base)' }} className="hover:text-primary">About Us</Link></li>
                             <li><Link href="/contact" style={{ color: 'var(--color-text-light)', transition: 'color var(--transition-base)' }} className="hover:text-primary">Contact</Link></li>
+                            <li>
+                                <a
+                                    href={INSTAGRAM_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-primary"
+                                    style={{ color: 'var(--color-text-light)', transition: 'color var(--transition-base)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                        <circle cx="12" cy="12" r="4" />
+                                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                                    </svg>
+                                    @jyothipaints
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -78,6 +127,42 @@ export default function Footer() {
                                 </svg>
                                 <span>jyothipaints15@gmail.com</span>
                             </li>
+                            {/* Instagram in Contact */}
+                            <li>
+                                <a
+                                    href={INSTAGRAM_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)',
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        color: '#fff',
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        textDecoration: 'none',
+                                        transition: 'opacity 0.2s ease, transform 0.2s ease',
+                                    }}
+                                    onMouseEnter={e => {
+                                        (e.currentTarget as HTMLAnchorElement).style.opacity = '0.85';
+                                        (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        (e.currentTarget as HTMLAnchorElement).style.opacity = '1';
+                                        (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
+                                    }}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                        <circle cx="12" cy="12" r="4" />
+                                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                                    </svg>
+                                    @jyothipaints
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -90,7 +175,7 @@ export default function Footer() {
                     color: 'rgba(255, 255, 255, 0.5)',
                     fontSize: '0.875rem'
                 }}>
-                    <p>&copy; {new Date().getFullYear()} Jyothi Boutique. All rights reserved to Swaroop Rayapalli.</p>
+                    <p>&copy; {new Date().getFullYear()} Jyothi Paints. All rights reserved to Swaroop Rayapalli.</p>
                 </div>
             </div>
             <style jsx>{`

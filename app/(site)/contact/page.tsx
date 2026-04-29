@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Button from '@/components/Button';
 
+const INSTAGRAM_URL = "https://www.instagram.com/jyothipaints?igsh=MTJwZjd1amlwb3R0dg%3D%3D";
+
 export default function ContactPage() {
     const [status, setStatus] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,20 +19,17 @@ export default function ContactPage() {
         const data = Object.fromEntries(formData);
         
         try {
-            // First, we still record the contact in our local storage for reference
             await fetch('/api/contact', {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' },
             });
 
-            // Construct WhatsApp Message
             const whatsappNumber = "917286916108";
-            const message = `*Jyothi Boutique Contact Request*\n\n*Name:* ${data.name}\n*Email:* ${data.email}\n*Subject:* ${data.subject}\n\n*Message:*\n${data.message}`;
+            const message = `*Jyothi Paints Contact Request*\n\n*Name:* ${data.name}\n*Email:* ${data.email}\n*Subject:* ${data.subject}\n\n*Message:*\n${data.message}`;
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-            // Redirect to WhatsApp
             window.open(whatsappUrl, '_blank');
             
             setStatus('SUCCESS');
@@ -46,6 +45,50 @@ export default function ContactPage() {
     return (
         <div className="container section animate-fade-in">
             <h1 className="text-gradient" style={{ textAlign: 'center', marginBottom: 'var(--spacing-2xl)' }}>Get in Touch</h1>
+
+            {/* Instagram Highlight Banner */}
+            <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '1rem',
+                    background: 'linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.25rem 2rem',
+                    marginBottom: 'var(--spacing-2xl)',
+                    textDecoration: 'none',
+                    color: '#fff',
+                    boxShadow: '0 8px 32px rgba(253,29,29,0.3)',
+                    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                    flexWrap: 'wrap',
+                }}
+                onMouseEnter={e => {
+                    (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-3px)';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 14px 42px rgba(253,29,29,0.45)';
+                }}
+                onMouseLeave={e => {
+                    (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 32px rgba(253,29,29,0.3)';
+                }}
+            >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                </svg>
+                <div>
+                    <p style={{ fontWeight: 800, fontSize: '1.2rem', margin: 0, letterSpacing: '0.02em' }}>Follow us on Instagram</p>
+                    <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>@jyothipaints — See our latest paintings &amp; creations</p>
+                </div>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', opacity: 0.85 }}>
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+
             <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-3xl)' }}>
                 <div>
                     <h2 style={{ marginBottom: 'var(--spacing-md)' }}>We'd love to hear from you</h2>
@@ -61,6 +104,52 @@ export default function ContactPage() {
                             <h3 style={{ color: 'var(--color-primary)', fontSize: '1.125rem' }}>Call Us</h3>
                             <p style={{ color: 'var(--color-text-light)' }}>+91 7286916108</p>
                         </div>
+
+                        {/* Instagram Card in Contact Info */}
+                        <a
+                            href={INSTAGRAM_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                background: 'linear-gradient(135deg, rgba(131,58,180,0.25), rgba(253,29,29,0.2), rgba(252,176,69,0.2))',
+                                border: '1.5px solid rgba(253,29,29,0.35)',
+                                padding: 'var(--spacing-md)',
+                                borderRadius: 'var(--radius-md)',
+                                textDecoration: 'none',
+                                color: '#fff',
+                                transition: 'border-color 0.2s ease, background 0.2s ease',
+                            }}
+                            onMouseEnter={e => {
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(253,29,29,0.7)';
+                            }}
+                            onMouseLeave={e => {
+                                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(253,29,29,0.35)';
+                            }}
+                        >
+                            <div style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                            }}>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                    <circle cx="12" cy="12" r="4" />
+                                    <circle cx="17.5" cy="6.5" r="1" fill="white" stroke="none" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>Instagram</p>
+                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>@jyothipaints</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
 
