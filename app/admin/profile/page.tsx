@@ -40,6 +40,37 @@ export default function AdminProfilePage() {
         fetchProfile();
     }, []);
 
+    const compressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 800;
+                    if (width > height) {
+                        if (width > max_size) { height *= max_size / width; width = max_size; }
+                    } else {
+                        if (height > max_size) { width *= max_size / height; height = max_size; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('Canvas to Blob failed'));
+                    }, 'image/jpeg', 0.75);
+                };
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    };
+
     const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -51,7 +82,8 @@ export default function AdminProfilePage() {
             formData.append('username', username);
             const fileInput = document.getElementById('photo-upload') as HTMLInputElement;
             if (fileInput?.files?.[0]) {
-                formData.append('profilePhoto', fileInput.files[0]);
+                const compressedBlob = await compressImage(fileInput.files[0]);
+                formData.append('profilePhoto', compressedBlob, 'profile.jpg');
             }
 
             const res = await fetch('/api/admin/profile', {
