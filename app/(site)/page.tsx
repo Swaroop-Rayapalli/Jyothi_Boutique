@@ -15,6 +15,7 @@ interface Product {
     name: string;
   };
   isComingSoon?: boolean;
+  isFeatured?: boolean;
 }
 
 interface Feedback {
@@ -416,6 +417,7 @@ export default function Home() {
                   image={product.images[0] || '/placeholder.jpg'}
                   category={product.category?.name}
                   isComingSoon={product.isComingSoon}
+                  isFeatured={product.isFeatured}
                 />
               ))
             ) : (

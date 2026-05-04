@@ -14,10 +14,18 @@ export async function GET(req: Request) {
         if (categoryParam) where.categoryId = categoryParam;
         if (featuredParam === 'true') where.isFeatured = true;
 
-        const dbProducts = await prisma.product.findMany({
+        let dbProducts = await prisma.product.findMany({
             where,
             orderBy: { createdAt: 'desc' },
         });
+
+        // Fallback: If featured products requested but none found, return latest 4 products
+        if (featuredParam === 'true' && dbProducts.length === 0) {
+            dbProducts = await prisma.product.findMany({
+                orderBy: { createdAt: 'desc' },
+                take: 4
+            });
+        }
 
         // Attach category object so existing frontend code keeps working
         const products = dbProducts.map(p => ({

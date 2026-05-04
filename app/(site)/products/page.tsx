@@ -71,6 +71,7 @@ function ProductsContent() {
                             image={product.images[0] || '/placeholder.jpg'}
                             category={product.category?.name}
                             isComingSoon={product.isComingSoon}
+                            isFeatured={product.isFeatured}
                         />
                     ))}
                 </div>

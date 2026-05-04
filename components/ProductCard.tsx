@@ -11,9 +11,10 @@ interface ProductCardProps {
     image: string;
     category?: string;
     isComingSoon?: boolean;
+    isFeatured?: boolean;
 }
 
-export default function ProductCard({ id, name, price, image, category, isComingSoon }: ProductCardProps) {
+export default function ProductCard({ id, name, price, image, category, isComingSoon, isFeatured }: ProductCardProps) {
     return (
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', opacity: isComingSoon ? 0.8 : 1 }}>
             <Link href={`/products/${id}`} style={{ position: 'relative', width: '100%', height: '300px', display: 'block', overflow: 'hidden' }}>
@@ -25,23 +26,37 @@ export default function ProductCard({ id, name, price, image, category, isComing
                     style={{ objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
                     className="product-image"
                 />
-                {isComingSoon && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
-                        background: 'var(--color-primary)',
-                        color: 'var(--color-background)',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        zIndex: 2,
-                        textTransform: 'uppercase'
-                    }}>
-                        Coming Soon
-                    </div>
-                )}
+                <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', zIndex: 2 }}>
+                    {isFeatured && (
+                        <div style={{
+                            background: '#fbbf24',
+                            color: 'var(--color-background)',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
+                        }}>
+                            ⭐ FEATURED
+                        </div>
+                    )}
+                    {isComingSoon && (
+                        <div style={{
+                            background: 'var(--color-primary)',
+                            color: 'var(--color-background)',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase'
+                        }}>
+                            Coming Soon
+                        </div>
+                    )}
+                </div>
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -67,8 +82,8 @@ export default function ProductCard({ id, name, price, image, category, isComing
                 </Link>
 
                 <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span className="text-gradient" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                        {isComingSoon || price === 0 ? 'Coming Soon' : `${price.toLocaleString('en-IN')}`}
+                    <span className="text-gradient" style={{ fontSize: '1rem', fontWeight: 700 }}>
+                        {isComingSoon ? 'Coming Soon' : (price === 0 ? (isFeatured ? 'Contact us for more details' : 'Coming Soon') : `₹${price.toLocaleString('en-IN')}`)}
                     </span>
                     <Link href={`/products/${id}`}>
                         <Button variant="outline" size="sm">{isComingSoon ? 'Details' : 'View'}</Button>

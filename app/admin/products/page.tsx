@@ -206,6 +206,32 @@ export default function AdminProductsPage() {
         }
     };
 
+    const toggleStatus = async (product: Product, field: 'isFeatured' | 'isComingSoon') => {
+        const data = new FormData();
+        data.append('id', product.id);
+        data.append('name', product.name);
+        data.append('description', product.description);
+        data.append('price', product.price.toString());
+        data.append('categoryId', product.categoryId);
+        data.append('isFeatured', (field === 'isFeatured' ? !product.isFeatured : !!product.isFeatured).toString());
+        data.append('isComingSoon', (field === 'isComingSoon' ? !product.isComingSoon : !!product.isComingSoon).toString());
+        
+        product.images?.forEach(img => data.append('existingImages', img));
+
+        try {
+            const res = await fetch('/api/admin/products', {
+                method: 'PUT',
+                body: data
+            });
+            if (res.ok) {
+                // Optimistically update or just refresh
+                fetchProducts();
+            }
+        } catch (error) {
+            console.error('Failed to toggle status', error);
+        }
+    };
+
     if (loading && products.length === 0) {
         return <div style={{ color: '#94a3b8' }}>Loading products...</div>;
     }
@@ -273,13 +299,47 @@ export default function AdminProductsPage() {
                                         {product.categoryId}
                                     </span>
                                 </td>
-                                <td style={{ padding: '1rem 1.5rem', fontWeight: 700 }}>
-                                    {product.price > 0 ? `${product.price.toLocaleString('en-IN')}` : 'Coming Soon'}
+                                <td style={{ padding: '1rem 1.5rem', fontWeight: 700, fontSize: '0.875rem' }}>
+                                    {product.isComingSoon ? 'Coming Soon' : (product.price === 0 ? (product.isFeatured ? 'Contact us for more details' : 'Coming Soon') : `₹${product.price.toLocaleString('en-IN')}`)}
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        {product.isFeatured && <span title="Featured" style={{ fontSize: '1.2rem' }}>⭐</span>}
-                                        {product.isComingSoon && <span title="Coming Soon" style={{ fontSize: '1.2rem' }}>⏳</span>}
+                                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                        <button 
+                                            onClick={() => toggleStatus(product, 'isFeatured')}
+                                            title={product.isFeatured ? "Remove from Featured" : "Mark as Featured"}
+                                            style={{ 
+                                                background: product.isFeatured ? 'rgba(251, 191, 36, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
+                                                border: `1px solid ${product.isFeatured ? '#fbbf24' : 'rgba(255, 255, 255, 0.1)'}`,
+                                                borderRadius: '0.375rem',
+                                                padding: '0.25rem 0.5rem',
+                                                cursor: 'pointer',
+                                                fontSize: '1rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                color: product.isFeatured ? '#fbbf24' : '#94a3b8'
+                                            }}
+                                        >
+                                            {product.isFeatured ? '⭐' : '☆'}
+                                        </button>
+                                        <button 
+                                            onClick={() => toggleStatus(product, 'isComingSoon')}
+                                            title={product.isComingSoon ? "Mark as Available" : "Mark as Coming Soon"}
+                                            style={{ 
+                                                background: product.isComingSoon ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
+                                                border: `1px solid ${product.isComingSoon ? '#3b82f6' : 'rgba(255, 255, 255, 0.1)'}`,
+                                                borderRadius: '0.375rem',
+                                                padding: '0.25rem 0.5rem',
+                                                cursor: 'pointer',
+                                                fontSize: '1rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                color: product.isComingSoon ? '#3b82f6' : '#94a3b8'
+                                            }}
+                                        >
+                                            {product.isComingSoon ? '⏳' : '📅'}
+                                        </button>
                                     </div>
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem' }}>
@@ -336,8 +396,9 @@ export default function AdminProductsPage() {
                                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>Price</label>
                                         <input 
                                             type="number" 
+                                            step="0.01"
                                             value={isNaN(formData.price ?? 0) ? '' : formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value ? parseInt(e.target.value) : 0 })}
+                                            onChange={(e) => setFormData({ ...formData, price: e.target.value ? parseFloat(e.target.value) : 0 })}
                                             style={{ width: '100%', padding: '0.8rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white' }} 
                                         />
                                     </div>

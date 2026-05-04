@@ -126,8 +126,8 @@ export default function ProductDetailPage() {
                 {/* Details */}
                 <div>
                     <h1 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-sm)' }}>{product.name}</h1>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: 'var(--spacing-lg)' }}>
-                        {product.isComingSoon || product.price === 0 ? 'Coming Soon' : `${product.price.toLocaleString('en-IN')}`}
+                    <p style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: 'var(--spacing-lg)' }}>
+                        {product.isComingSoon ? 'Coming Soon' : (product.price === 0 ? (product.isFeatured ? 'Contact us for more details' : 'Coming Soon') : `₹${product.price.toLocaleString('en-IN')}`)}
                     </p>
                     <p style={{ color: 'var(--color-text-light)', lineHeight: 1.8, marginBottom: 'var(--spacing-xl)' }}>
                         {product.description}
