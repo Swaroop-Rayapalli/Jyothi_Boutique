@@ -23,9 +23,10 @@ export async function POST(req: Request) {
         const name = formData.get('name') as string || 'Anonymous';
         const rating = parseInt(formData.get('rating') as string) || 5;
         const comment = formData.get('comment') as string || '';
+        const sentiment = formData.get('sentiment') as string || null;
         const files = formData.getAll('images') as File[];
         
-        console.log(`[Feedback API] Payload: Name="${name}", Rating=${rating}, ImagesCount=${files.length}`);
+        console.log(`[Feedback API] Payload: Name="${name}", Rating=${rating}, Sentiment=${sentiment}, ImagesCount=${files.length}`);
         
         // 1. Process Images with Cloudinary
         const imageUrls: string[] = [];
@@ -62,6 +63,9 @@ export async function POST(req: Request) {
                 rating: Number(rating),
                 comment: String(comment),
                 images: validImageUrls,
+                sentiment: sentiment,
+                likes: sentiment === 'LIKE' ? 1 : 0,
+                dislikes: sentiment === 'DISLIKE' ? 1 : 0
             }
         });
         

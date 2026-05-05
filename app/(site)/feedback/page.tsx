@@ -11,6 +11,9 @@ interface Feedback {
     comment: string;
     images: string[];
     date: string;
+    likes: number;
+    dislikes: number;
+    sentiment?: string;
 }
 
 export default function FeedbackPage() {
@@ -19,6 +22,7 @@ export default function FeedbackPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [rating, setRating] = useState(5);
+    const [sentiment, setSentiment] = useState<'LIKE' | 'DISLIKE' | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,6 +86,50 @@ export default function FeedbackPage() {
         fetchFeedback();
     }, []);
 
+    const handleReact = async (id: string, type: 'like' | 'dislike') => {
+        const storageKey = `feedback_react_${id}`;
+        const prevType = localStorage.getItem(storageKey) as 'like' | 'dislike' | null;
+
+        // If clicking the same reaction, do nothing or "un-react"
+        // For simplicity, let's say "un-react" is not supported for now as per "only 1"
+        if (prevType === type) return;
+
+        try {
+            // Optimistic update
+            setFeedbackList(prev => prev.map(f => {
+                if (f.id === id) {
+                    let newLikes = f.likes;
+                    let newDislikes = f.dislikes;
+                    
+                    if (type === 'like') newLikes++;
+                    else if (type === 'dislike') newDislikes++;
+
+                    if (prevType === 'like') newLikes--;
+                    else if (prevType === 'dislike') newDislikes--;
+
+                    return { ...f, likes: newLikes, dislikes: newDislikes };
+                }
+                return f;
+            }));
+
+            const res = await fetch('/api/feedback/react', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type, prevType })
+            });
+
+            if (res.ok) {
+                localStorage.setItem(storageKey, type);
+            } else {
+                // Rollback if failed
+                fetchFeedback();
+            }
+        } catch (err) {
+            console.error('Reaction failed', err);
+            fetchFeedback();
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -94,6 +142,7 @@ export default function FeedbackPage() {
         formData.append('name', (form.elements.namedItem('name') as HTMLInputElement).value);
         formData.append('rating', rating.toString());
         formData.append('comment', (form.elements.namedItem('comment') as HTMLTextAreaElement).value);
+        if (sentiment) formData.append('sentiment', sentiment);
 
         try {
             // Compress images if any
@@ -116,6 +165,7 @@ export default function FeedbackPage() {
                 setStatus({ type: 'success', message: 'Thank you for your feedback!' });
                 form.reset();
                 setRating(5);
+                setSentiment(null);
                 fetchFeedback();
             } else {
                 throw new Error('Failed to submit feedback');
@@ -192,6 +242,34 @@ export default function FeedbackPage() {
                             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', opacity: 0.6 }}>
                                 You can select multiple images of your custom work.
                             </p>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                            <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Would you recommend us?</label>
+                            <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: '4px' }}>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setSentiment(sentiment === 'LIKE' ? null : 'LIKE')}
+                                    style={{ 
+                                        ...sentimentButtonStyle, 
+                                        borderColor: sentiment === 'LIKE' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
+                                        color: sentiment === 'LIKE' ? 'var(--color-primary)' : 'white'
+                                    }}
+                                >
+                                    👍 Recommended
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setSentiment(sentiment === 'DISLIKE' ? null : 'DISLIKE')}
+                                    style={{ 
+                                        ...sentimentButtonStyle, 
+                                        borderColor: sentiment === 'DISLIKE' ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                                        color: sentiment === 'DISLIKE' ? '#ef4444' : 'white'
+                                    }}
+                                >
+                                    👎 Not Recommended
+                                </button>
+                            </div>
                         </div>
 
                         <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} style={{ marginTop: 'var(--spacing-md)' }}>
@@ -276,6 +354,27 @@ export default function FeedbackPage() {
                                             ))}
                                         </div>
                                     )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--spacing-md)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 'var(--spacing-sm)' }}>
+                                        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                                            <button 
+                                                onClick={() => handleReact(item.id, 'like')}
+                                                className={`react-btn ${typeof window !== 'undefined' && localStorage.getItem(`feedback_react_${item.id}`) === 'like' ? 'active-like' : ''}`}
+                                            >
+                                                👍 {item.likes}
+                                            </button>
+                                            <button 
+                                                onClick={() => handleReact(item.id, 'dislike')}
+                                                className={`react-btn ${typeof window !== 'undefined' && localStorage.getItem(`feedback_react_${item.id}`) === 'dislike' ? 'active-dislike' : ''}`}
+                                            >
+                                                👎 {item.dislikes}
+                                            </button>
+                                        </div>
+                                        {item.sentiment && (
+                                            <span style={{ fontSize: '0.75rem', color: item.sentiment === 'LIKE' ? 'var(--color-primary)' : '#ef4444', opacity: 0.8, fontStyle: 'italic' }}>
+                                                {item.sentiment === 'LIKE' ? 'Highly Recommended' : 'Not Recommended'}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -380,6 +479,33 @@ export default function FeedbackPage() {
                         grid-template-columns: 1fr;
                     }
                 }
+                .react-btn {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 20px;
+                    padding: 0.4rem 0.8rem;
+                    color: var(--color-text-light);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 0.875rem;
+                    transition: all 0.2s;
+                }
+                .react-btn:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: rgba(255, 255, 255, 0.3);
+                }
+                .react-btn.active-like {
+                    color: var(--color-primary);
+                    border-color: var(--color-primary);
+                    background: rgba(var(--color-primary-rgb), 0.1);
+                }
+                .react-btn.active-dislike {
+                    color: #ef4444;
+                    border-color: #ef4444;
+                    background: rgba(239, 68, 68, 0.1);
+                }
             `}</style>
         </div>
     );
@@ -395,4 +521,17 @@ const inputStyle = {
     fontFamily: 'inherit',
     transition: 'border-color 0.2s',
     outline: 'none'
+};
+
+const sentimentButtonStyle = {
+    padding: '0.6rem 1.25rem',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.2s'
 };

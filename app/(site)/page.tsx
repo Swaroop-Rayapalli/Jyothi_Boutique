@@ -25,6 +25,9 @@ interface Feedback {
   comment: string;
   images: string[];
   date: string;
+  likes: number;
+  dislikes: number;
+  sentiment?: string;
 }
 
 export default function Home() {
@@ -37,6 +40,7 @@ export default function Home() {
   // Feedback Form State
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackSentiment, setFeedbackSentiment] = useState<'LIKE' | 'DISLIKE' | null>(null);
   const [feedbackStatus, setFeedbackStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const feedbackFileRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +80,46 @@ export default function Home() {
     fetchFeatured();
     fetchFeedback();
   }, []);
+
+  const handleReact = async (id: string, type: 'like' | 'dislike') => {
+    const storageKey = `feedback_react_${id}`;
+    const prevType = localStorage.getItem(storageKey) as 'like' | 'dislike' | null;
+
+    if (prevType === type) return;
+
+    try {
+      // Optimistic update
+      setFeedbacks(prev => prev.map(f => {
+        if (f.id === id) {
+          let newLikes = f.likes;
+          let newDislikes = f.dislikes;
+          if (type === 'like') newLikes++; else if (type === 'dislike') newDislikes++;
+          if (prevType === 'like') newLikes--; else if (prevType === 'dislike') newDislikes--;
+          return { ...f, likes: newLikes, dislikes: newDislikes };
+        }
+        return f;
+      }));
+
+      const res = await fetch('/api/feedback/react', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, type, prevType })
+      });
+
+      if (res.ok) {
+        localStorage.setItem(storageKey, type);
+      } else {
+        // Rollback
+        const refreshedRes = await fetch('/api/feedback');
+        if (refreshedRes.ok) {
+          const data = await refreshedRes.json();
+          setFeedbacks(data.slice(0, 3));
+        }
+      }
+    } catch (err) {
+      console.error('Reaction failed', err);
+    }
+  };
 
   const compressImage = (file: File): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -123,6 +167,7 @@ export default function Home() {
     formData.append('name', (form.elements.namedItem('name') as HTMLInputElement).value);
     formData.append('rating', feedbackRating.toString());
     formData.append('comment', (form.elements.namedItem('comment') as HTMLTextAreaElement).value);
+    if (feedbackSentiment) formData.append('sentiment', feedbackSentiment);
 
     try {
       const files = feedbackFileRef.current?.files;
@@ -139,6 +184,7 @@ export default function Home() {
         setFeedbackStatus({ type: 'success', message: 'Thank you for your feedback!' });
         form.reset();
         setFeedbackRating(5);
+        setFeedbackSentiment(null);
         // Refresh feedback list
         const refreshedRes = await fetch('/api/feedback');
         if (refreshedRes.ok) {
@@ -306,6 +352,33 @@ export default function Home() {
               justify-content: center;
               gap: 0.75rem !important;
             }
+          }
+          .react-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            color: var(--color-text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+          }
+          .react-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+          .react-btn.active-like {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+            background: rgba(197, 160, 33, 0.1);
+          }
+          .react-btn.active-dislike {
+            color: #ef4444;
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
           }
         `}</style>
       </section>
@@ -485,6 +558,28 @@ export default function Home() {
                       ))}
                     </div>
                   )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--spacing-md)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 'var(--spacing-sm)' }}>
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                      <button 
+                        onClick={() => handleReact(item.id, 'like')}
+                        className={`react-btn ${typeof window !== 'undefined' && localStorage.getItem(`feedback_react_${item.id}`) === 'like' ? 'active-like' : ''}`}
+                      >
+                        👍 {item.likes}
+                      </button>
+                      <button 
+                        onClick={() => handleReact(item.id, 'dislike')}
+                        className={`react-btn ${typeof window !== 'undefined' && localStorage.getItem(`feedback_react_${item.id}`) === 'dislike' ? 'active-dislike' : ''}`}
+                      >
+                        👎 {item.dislikes}
+                      </button>
+                    </div>
+                    {item.sentiment && (
+                      <span style={{ fontSize: '0.75rem', color: item.sentiment === 'LIKE' ? 'var(--color-primary)' : '#ef4444', opacity: 0.8, fontStyle: 'italic' }}>
+                        {item.sentiment === 'LIKE' ? 'Recommended' : 'Not Recommended'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
@@ -540,6 +635,34 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Attach Images (Optional)</label>
                 <input type="file" name="images" multiple accept="image/*" ref={feedbackFileRef} style={{ ...inputStyle, padding: '0.75rem' }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Would you recommend us?</label>
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: '4px' }}>
+                  <button 
+                    type="button" 
+                    onClick={() => setFeedbackSentiment(feedbackSentiment === 'LIKE' ? null : 'LIKE')}
+                    style={{ 
+                      ...sentimentButtonStyle, 
+                      borderColor: feedbackSentiment === 'LIKE' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
+                      color: feedbackSentiment === 'LIKE' ? 'var(--color-primary)' : 'white'
+                    }}
+                  >
+                    👍 Recommended
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setFeedbackSentiment(feedbackSentiment === 'DISLIKE' ? null : 'DISLIKE')}
+                    style={{ 
+                      ...sentimentButtonStyle, 
+                      borderColor: feedbackSentiment === 'DISLIKE' ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                      color: feedbackSentiment === 'DISLIKE' ? '#ef4444' : 'white'
+                    }}
+                  >
+                    👎 Not Recommended
+                  </button>
+                </div>
               </div>
               <Button type="submit" variant="primary" size="lg" disabled={isSubmittingFeedback}>
                 {isSubmittingFeedback ? 'Submitting...' : 'Submit Feedback'}
@@ -651,4 +774,17 @@ const inputStyle = {
   fontFamily: 'inherit',
   outline: 'none',
   transition: 'border-color 0.2s'
+};
+
+const sentimentButtonStyle = {
+  padding: '0.6rem 1.25rem',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid',
+  borderRadius: 'var(--radius-md)',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  transition: 'all 0.2s'
 };

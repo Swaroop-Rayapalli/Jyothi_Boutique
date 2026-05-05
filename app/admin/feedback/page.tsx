@@ -13,6 +13,8 @@ interface Feedback {
     images?: string[];
     isPublic: boolean;
     date: string;
+    likes: number;
+    dislikes: number;
 }
 
 export default function AdminFeedbackPage() {
@@ -136,6 +138,7 @@ export default function AdminFeedbackPage() {
                                 <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Customer</th>
                                 <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Message</th>
                                 <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Rating</th>
+                                <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Engagement</th>
                                 <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Visibility</th>
                                 <th style={{ padding: '1.25rem 1.5rem', color: '#fbbf24' }}>Actions</th>
                             </tr>
@@ -175,6 +178,12 @@ export default function AdminFeedbackPage() {
                                     <td style={{ padding: '1rem 1.5rem' }}>
                                         <div style={{ color: '#fbbf24' }}>
                                             {'★'.repeat(f.rating)}{'☆'.repeat(5 - f.rating)}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1rem 1.5rem' }}>
+                                        <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.875rem' }}>
+                                            <span title="Likes" style={{ color: '#10b981' }}>👍 {f.likes}</span>
+                                            <span title="Dislikes" style={{ color: '#f43f5e' }}>👎 {f.dislikes}</span>
                                         </div>
                                     </td>
                                     <td style={{ padding: '1rem 1.5rem' }}>
@@ -336,6 +345,10 @@ export default function AdminFeedbackPage() {
                                     }}>
                                         {viewingFeedback.isPublic ? 'Publicly Visible' : 'Hidden'}
                                     </span>
+                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem', fontSize: '1rem' }}>
+                                        <span title="Likes" style={{ color: '#10b981' }}>👍 {viewingFeedback.likes}</span>
+                                        <span title="Dislikes" style={{ color: '#f43f5e' }}>👎 {viewingFeedback.dislikes}</span>
+                                    </div>
                                 </div>
                             </div>
 
