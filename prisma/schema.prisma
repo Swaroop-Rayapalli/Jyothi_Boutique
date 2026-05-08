@@ -44,3 +44,26 @@ model Admin {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
+
+model Order {
+  id              String      @id
+  status          String      @default("pending")
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerAddress String
+  totalAmount     Float
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}

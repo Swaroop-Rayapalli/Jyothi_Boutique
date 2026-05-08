@@ -8,10 +8,12 @@ import { useCart } from '@/lib/cart';
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const pathname = usePathname();
     const { totalItems } = useCart();
 
     useEffect(() => {
+        setIsMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
@@ -138,7 +140,7 @@ export default function Header() {
                             <line x1="3" y1="6" x2="21" y2="6" />
                             <path d="M16 10a4 4 0 01-8 0" />
                         </svg>
-                        {totalItems > 0 && (
+                        {isMounted && totalItems > 0 && (
                             <span style={{
                                 position: 'absolute',
                                 top: '-8px',

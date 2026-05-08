@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+// Force type refresh for new Order models
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 
@@ -19,7 +20,7 @@ declare global {
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const prisma = globalThis.prisma ?? prismaClientSingleton()
+const prisma = (globalThis.prisma ?? prismaClientSingleton()) as any
 
 export default prisma
 

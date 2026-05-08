@@ -24,7 +24,38 @@ export default function FeedbackPage() {
     const [rating, setRating] = useState(5);
     const [sentiment, setSentiment] = useState<'LIKE' | 'DISLIKE' | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        // Add new files to existing selection
+        setSelectedFiles(prev => [...prev, ...files]);
+        
+        // Generate previews
+        const newPreviews = files.map(file => URL.createObjectURL(file));
+        setPreviews(prev => [...prev, ...newPreviews]);
+        
+        // Reset input so the same file can be selected again if needed
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const removeFile = (index: number) => {
+        setPreviews(prev => {
+            const newPreviews = [...prev];
+            URL.revokeObjectURL(newPreviews[index]);
+            newPreviews.splice(index, 1);
+            return newPreviews;
+        });
+        setSelectedFiles(prev => {
+            const newFiles = [...prev];
+            newFiles.splice(index, 1);
+            return newFiles;
+        });
+    };
 
     const fetchFeedback = async () => {
         try {
@@ -146,11 +177,10 @@ export default function FeedbackPage() {
 
         try {
             // Compress images if any
-            const files = fileInputRef.current?.files;
-            if (files && files.length > 0) {
+            if (selectedFiles.length > 0) {
                 setStatus({ type: 'success', message: 'Compressing images...' });
-                for (let i = 0; i < files.length; i++) {
-                    const compressedBlob = await compressImage(files[i]);
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const compressedBlob = await compressImage(selectedFiles[i]);
                     formData.append('images', compressedBlob, `image_${i}.jpg`);
                 }
             }
@@ -166,6 +196,8 @@ export default function FeedbackPage() {
                 form.reset();
                 setRating(5);
                 setSentiment(null);
+                setPreviews([]);
+                setSelectedFiles([]);
                 fetchFeedback();
             } else {
                 throw new Error('Failed to submit feedback');
@@ -227,21 +259,70 @@ export default function FeedbackPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                             <label style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>Attach Images (Optional)</label>
+                            <div 
+                                onClick={() => fileInputRef.current?.click()}
+                                style={{
+                                    ...inputStyle,
+                                    padding: '1.5rem',
+                                    cursor: 'pointer',
+                                    borderStyle: 'dashed',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: 'var(--spacing-xs)',
+                                    background: 'rgba(255,255,255,0.02)'
+                                }}
+                            >
+                                <span style={{ fontSize: '1.5rem' }}>📸</span>
+                                <span style={{ fontSize: '0.875rem', opacity: 0.8 }}>Click to upload photos of your art</span>
+                            </div>
                             <input
                                 type="file"
                                 name="images"
                                 multiple
                                 accept="image/*"
                                 ref={fileInputRef}
-                                style={{
-                                    ...inputStyle,
-                                    padding: '0.75rem',
-                                    cursor: 'pointer'
-                                }}
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
                             />
-                            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', opacity: 0.6 }}>
-                                You can select multiple images of your custom work.
-                            </p>
+                            
+                            {/* Previews Gallery */}
+                            {previews.length > 0 && (
+                                <div style={{ 
+                                    display: 'grid', 
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', 
+                                    gap: 'var(--spacing-sm)',
+                                    marginTop: 'var(--spacing-md)'
+                                }}>
+                                    {previews.map((preview, idx) => (
+                                        <div key={idx} style={{ position: 'relative', height: '80px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                                            <img src={preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <button 
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '2px',
+                                                    right: '2px',
+                                                    background: 'rgba(0,0,0,0.5)',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '50%',
+                                                    width: '18px',
+                                                    height: '18px',
+                                                    fontSize: '12px',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>

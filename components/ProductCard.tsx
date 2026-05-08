@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from './Button';
+import { useCart } from '@/lib/cart';
+import { useState, useEffect } from 'react';
 
 interface ProductCardProps {
     id: string;
@@ -15,6 +17,23 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, name, price, image, category, isComingSoon, isFeatured }: ProductCardProps) {
+    const { addItem } = useCart();
+    
+    const [isAdded, setIsAdded] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addItem({ id, name, price, image });
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000);
+    };
+
     return (
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', opacity: isComingSoon ? 0.8 : 1 }}>
             <Link href={`/products/${id}`} style={{ position: 'relative', width: '100%', height: '300px', display: 'block', overflow: 'hidden' }}>
@@ -81,15 +100,28 @@ export default function ProductCard({ id, name, price, image, category, isComing
                     </h3>
                 </Link>
 
-                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span className="text-gradient" style={{ fontSize: '1rem', fontWeight: 700 }}>
-                        {isComingSoon ? 'Coming Soon' : (price === 0 ? (isFeatured ? 'Contact us for more details' : 'Coming Soon') : `₹${price.toLocaleString('en-IN')}`)}
-                    </span>
+                <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+                    <Button 
+                        variant="primary" 
+                        size="sm" 
+                        onClick={handleAddToCart}
+                        disabled={isComingSoon || !isMounted}
+                        style={{ 
+                            padding: '0.25rem 0.5rem', 
+                            fontSize: '0.75rem',
+                            background: isAdded ? 'var(--color-success)' : 'var(--color-primary)'
+                        }}
+                    >
+                        {isAdded ? '✓ Added' : 'Add to Cart'}
+                    </Button>
                     <Link href={`/products/${id}`}>
-                        <Button variant="outline" size="sm">{isComingSoon ? 'Details' : 'View'}</Button>
+                        <Button variant="outline" size="sm" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
+                            {isComingSoon ? 'Details' : 'View'}
+                        </Button>
                     </Link>
                 </div>
             </div>
+
             <style jsx>{`
                 .glass-card:hover .product-image {
                     transform: scale(1.05);

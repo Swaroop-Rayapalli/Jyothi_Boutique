@@ -101,7 +101,7 @@ export default function CartPage() {
                             </div>
                         </div>
                         <Link href="/checkout">
-                            <Button variant="primary" size="lg" style={{ width: '100%' }}>Proceed to Checkout</Button>
+                            <Button variant="primary" size="lg" style={{ width: '100%' }}>Place Order</Button>
                         </Link>
                     </div>
                 </div>

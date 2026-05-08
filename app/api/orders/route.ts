@@ -1,53 +1,36 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const ordersFilePath = path.join(process.cwd(), 'lib', 'orders.json');
-
-function getOrders() {
-    if (!fs.existsSync(ordersFilePath)) {
-        fs.writeFileSync(ordersFilePath, '[]', 'utf8');
-        return [];
-    }
-    const fileContent = fs.readFileSync(ordersFilePath, 'utf8');
-    return JSON.parse(fileContent);
-}
-
-function saveOrders(orders: any[]) {
-    fs.writeFileSync(ordersFilePath, JSON.stringify(orders, null, 4), 'utf8');
-}
-
-interface OrderItemRequest {
-    productId: string;
-    quantity: number;
-    price: number;
-}
-
-interface OrderRequestBody {
-    customer: {
-        name: string;
-        email: string;
-        phone: string;
-    };
-    items: OrderItemRequest[];
-    totalAmount: number;
-    deliveryAddress: string;
-}
+// Updated to use Prisma for Order persistence
+import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
     try {
-        const body: OrderRequestBody = await req.json();
-        const orders = getOrders();
+        const body = await req.json();
+        const { customer, items, totalAmount } = body;
 
-        const newOrder = {
-            id: 'ord_' + Math.random().toString(36).substr(2, 9),
-            createdAt: new Date().toISOString(),
-            status: 'pending',
-            ...body
-        };
+        const orderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-        orders.push(newOrder);
-        saveOrders(orders);
+        const newOrder = await prisma.order.create({
+            data: {
+                id: orderId,
+                status: 'pending',
+                customerName: customer.name,
+                customerEmail: customer.email,
+                customerPhone: customer.phone,
+                customerAddress: customer.address,
+                totalAmount: totalAmount,
+                items: {
+                    create: items.map((item: any) => ({
+                        productId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                    })),
+                },
+            },
+            include: {
+                items: true,
+            },
+        });
 
         return NextResponse.json(newOrder);
     } catch (error) {

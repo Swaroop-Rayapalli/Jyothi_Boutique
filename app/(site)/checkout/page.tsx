@@ -37,15 +37,33 @@ export default function CheckoutPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer: { name: formData.name, email: formData.email, phone: formData.phone },
-                    items: items.map(i => ({ productId: i.id, quantity: i.quantity, price: i.price })),
+                    customer: { 
+                        name: formData.name, 
+                        email: formData.email, 
+                        phone: formData.phone,
+                        address: `${formData.address}, ${formData.city} - ${formData.pincode}`
+                    },
+                    items: items.map(i => ({ 
+                        id: i.id, 
+                        name: i.name, 
+                        quantity: i.quantity, 
+                        price: i.price 
+                    })),
                     totalAmount: totalPrice,
-                    deliveryAddress: `${formData.address}, ${formData.city} - ${formData.pincode}`,
                 }),
             });
             if (res.ok) {
                 const data = await res.json();
                 clearCart();
+                
+                // Construct WhatsApp message
+                const phoneNumber = '917286916108'; // From WhatsAppButton.tsx
+                const itemsList = items.map(i => `- ${i.name} (Qty: ${i.quantity})`).join('\n');
+                const message = `Hi! I would like to place an order (ID: ${data.id}):\n\n*Items:*\n${itemsList}\n\n*Total:* ₹${totalPrice.toLocaleString('en-IN')}\n\n*Customer Details:*\nName: ${formData.name}\nPhone: ${formData.phone}\nAddress: ${formData.address}, ${formData.city} - ${formData.pincode}`;
+                
+                const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+                window.open(waUrl, '_blank');
+                
                 router.push(`/checkout/success?orderId=${data.id}`);
             } else throw new Error('Failed to place order');
         } catch (err) {
@@ -96,8 +114,8 @@ export default function CheckoutPage() {
                                 <span>{totalPrice.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
-                        <Button type="submit" form="checkout-form" variant="primary" size="lg" style={{ width: '100%' }} disabled={isProcessing}>
-                            {isProcessing ? 'Processing...' : `Pay ${totalPrice.toLocaleString('en-IN')}`}
+                        <Button type="submit" form="checkout-form" variant="primary" size="lg" style={{ width: '100%', background: '#25D366', borderColor: '#25D366' }} disabled={isProcessing}>
+                            {isProcessing ? 'Processing...' : `Order on WhatsApp (₹${totalPrice.toLocaleString('en-IN')})`}
                         </Button>
                     </div>
                 </div>

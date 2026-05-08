@@ -45,7 +45,13 @@ export default function ProductDetailPage() {
     const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
     const [activeImage, setActiveImage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAdded, setIsAdded] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     useEffect(() => {
         if (!id) return;
@@ -92,7 +98,8 @@ export default function ProductDetailPage() {
             price: product.price,
             image: product.images[0] || '/placeholder.jpg'
         });
-        router.push('/cart');
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000);
     };
 
     return (
@@ -149,11 +156,14 @@ export default function ProductDetailPage() {
 
                     <Button 
                         size="lg" 
-                        style={{ width: '100%' }} 
+                        style={{ 
+                            width: '100%',
+                            background: isAdded ? 'var(--color-success)' : 'var(--color-primary)'
+                        }} 
                         onClick={handleAddToCart}
-                        disabled={product.isComingSoon}
+                        disabled={product.isComingSoon || !isMounted}
                     >
-                        {product.isComingSoon ? 'Coming Soon' : 'Add to Cart'}
+                        {product.isComingSoon ? 'Coming Soon' : (isAdded ? '✓ Added to Cart' : 'Add to Cart')}
                     </Button>
                 </div>
             </div>
