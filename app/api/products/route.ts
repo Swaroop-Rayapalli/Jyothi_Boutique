@@ -28,9 +28,9 @@ export async function GET(req: Request) {
         }
 
         // Attach category object so existing frontend code keeps working
-        const products = dbProducts.map(p => ({
+        const products = dbProducts.map((p: any) => ({
             ...p,
-            category: categories.find(c => c.id === p.categoryId),
+            category: categories.find((c: any) => c.id === p.categoryId),
         }));
 
         return NextResponse.json(products);
